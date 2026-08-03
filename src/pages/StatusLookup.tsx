@@ -42,7 +42,7 @@ export default function StatusLookup() {
                   <input
                     value={serial}
                     onChange={(e) => setSerial(e.target.value)}
-                    placeholder="GOVTRACK-2026-XXXXXX"
+                    placeholder="TRACK-XXXXXXXXXXXX"
                     required
                   />
                   <button className="button button-primary">

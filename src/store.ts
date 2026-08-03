@@ -44,14 +44,15 @@ export const setAuthenticated = (value: boolean) =>
 
 export function generateSerial() {
   const existing = new Set(getRequests().map((request) => request.serialCode));
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let serial = "";
   do {
-    const code = crypto.getRandomValues(new Uint32Array(1))[0]
-      .toString(36)
-      .toUpperCase()
-      .padStart(7, "0")
-      .slice(0, 7);
-    serial = `GOVTRACK-${new Date().getFullYear()}-${code}`;
+    const values = crypto.getRandomValues(new Uint8Array(12));
+    const code = Array.from(
+      values,
+      (value) => alphabet[value % alphabet.length],
+    ).join("");
+    serial = `TRACK-${code}`;
   } while (existing.has(serial));
   return serial;
 }

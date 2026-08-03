@@ -205,7 +205,7 @@ export default function AgencyDashboard() {
                         setTrackingNumber(event.target.value);
                         setLookupError("");
                       }}
-                      placeholder="GOVTRACK-2026-XXXXXXX"
+                      placeholder="TRACK-XXXXXXXXXXXX"
                       autoComplete="off"
                       required
                     />
