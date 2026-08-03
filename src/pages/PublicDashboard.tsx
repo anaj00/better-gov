@@ -1,7 +1,6 @@
 import {
   AlertTriangle,
   CheckCircle2,
-  ChevronRight,
   Clock3,
   FileStack,
   TrendingUp,
