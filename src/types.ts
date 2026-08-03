@@ -38,3 +38,21 @@ export type ProcessCatalogItem = {
 }
 
 export type Geography = 'Philippines' | 'National Capital Region' | 'Quezon City' | 'Greater Lagro'
+
+export type RegionStat = {
+  region: string
+  total: number
+  completed: number
+  newRequests: number
+  overdue: number
+  avgDays: number
+  onTimePct: number
+}
+
+export type TimeWindow = 'all' | '30d'
+
+export type DrillLocation = {
+  region?: string
+  city?: string
+  barangay?: string
+}

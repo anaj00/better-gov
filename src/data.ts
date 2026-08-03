@@ -1,4 +1,4 @@
-import type { Geography, ProcessCatalogItem, ProcessId, RequestRecord } from './types'
+import type { DrillLocation, Geography, ProcessCatalogItem, ProcessId, RegionStat, RequestRecord, TimeWindow } from './types'
 
 export const activeProcesses: Record<ProcessId, { name: string; agency: string; estimate: string; icon: string }> = {
   'bir-registration': {
@@ -94,4 +94,187 @@ export function statisticsFor(geography: Geography, processIds: string[]) {
     }))
     return { process, total, completed, newRequests: total - completed, overdue: Math.round((total - completed) * 0.18), avgDays: 2 + (index % 11), onTime: 74 + (index % 20), monthly }
   })
+}
+
+// Region names must match the `adm1_en` property in src/geodata/philippines-regions.topo.json
+export const regionNames = [
+  'Region I (Ilocos Region)',
+  'Region II (Cagayan Valley)',
+  'Region III (Central Luzon)',
+  'Region IV-A (CALABARZON)',
+  'Region V (Bicol Region)',
+  'Region VI (Western Visayas)',
+  'Region VII (Central Visayas)',
+  'Region VIII (Eastern Visayas)',
+  'Region IX (Zamboanga Peninsula)',
+  'Region X (Northern Mindanao)',
+  'Region XI (Davao Region)',
+  'Region XII (SOCCSKSARGEN)',
+  'National Capital Region (NCR)',
+  'Cordillera Administrative Region (CAR)',
+  'Region XIII (Caraga)',
+  'MIMAROPA Region',
+  'Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)',
+]
+
+// Approximate share of request volume distributed to each region (sums to ~1)
+const regionFactors = [0.055, 0.03, 0.11, 0.13, 0.05, 0.07, 0.075, 0.04, 0.035, 0.05, 0.065, 0.045, 0.13, 0.028, 0.028, 0.025, 0.024]
+
+export function statisticsByRegion(processIds: string[]): RegionStat[] {
+  const national = statisticsFor('Philippines', processIds).reduce((acc, row) => {
+    acc.total += row.total
+    acc.completed += row.completed
+    acc.weightedDays += row.avgDays * row.total
+    acc.weightedOnTime += row.onTime * row.completed
+    return acc
+  }, { total: 0, completed: 0, weightedDays: 0, weightedOnTime: 0 })
+  const avgDays = national.total ? national.weightedDays / national.total : 0
+  const onTimePct = national.completed ? national.weightedOnTime / national.completed : 0
+  return regionNames.map((region, index) => {
+    const factor = regionFactors[index] ?? 0
+    const total = Math.round(national.total * factor)
+    const completed = Math.round(total * (national.total ? national.completed / national.total : 0.72))
+    const jitter = (index * 7) % 9
+    return {
+      region,
+      total,
+      completed,
+      newRequests: total - completed,
+      overdue: Math.round((total - completed) * 0.18),
+      avgDays: Math.max(1, Math.round(avgDays) + (jitter - 4)),
+      onTimePct: Math.max(0, Math.min(100, Math.round(onTimePct) + ((index * 11) % 13) - 6)),
+    }
+  })
+}
+
+const hash = (s: string) => {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h
+}
+
+const regionCities: Record<string, string[]> = {
+  'Region I (Ilocos Region)': ['San Fernando (La Union)', 'Dagupan', 'Laoag', 'Vigan'],
+  'Region II (Cagayan Valley)': ['Tuguegarao', 'Santiago', 'Cauayan', 'Ilagan'],
+  'Region III (Central Luzon)': ['San Fernando (Pampanga)', 'Angeles', 'Olongapo', 'Malolos', 'Tarlac City', 'Cabanatuan'],
+  'Region IV-A (CALABARZON)': ['Calamba', 'Antipolo', 'Batangas City', 'Lucena', 'Lipa', 'Santa Rosa'],
+  'Region V (Bicol Region)': ['Legazpi', 'Naga City', 'Sorsogon City', 'Masbate City'],
+  'Region VI (Western Visayas)': ['Iloilo City', 'Bacolod', 'Bago', 'Kabankalan'],
+  'Region VII (Central Visayas)': ['Cebu City', 'Lapu-Lapu', 'Mandaue', 'Tagbilaran', 'Dumaguete'],
+  'Region VIII (Eastern Visayas)': ['Tacloban', 'Ormoc', 'Calbayog', 'Maasin'],
+  'Region IX (Zamboanga Peninsula)': ['Zamboanga City', 'Pagadian', 'Dipolog'],
+  'Region X (Northern Mindanao)': ['Cagayan de Oro', 'Iligan', 'Malaybalay', 'Valencia'],
+  'Region XI (Davao Region)': ['Davao City', 'Tagum', 'Digos', 'Panabo'],
+  'Region XII (SOCCSKSARGEN)': ['General Santos', 'Koronadal', 'Tacurong', 'Kidapawan'],
+  'National Capital Region (NCR)': ['Quezon City', 'Manila', 'Pasig', 'Makati', 'Taguig', 'Marikina'],
+  'Cordillera Administrative Region (CAR)': ['Baguio', 'Tabuk', 'La Trinidad'],
+  'Region XIII (Caraga)': ['Butuan', 'Surigao City', 'Bayugan'],
+  'MIMAROPA Region': ['Puerto Princesa', 'Calapan', 'Odiongan'],
+  'Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)': ['Cotabato City', 'Marawi', 'Lamitan'],
+}
+
+export function citiesForRegion(region: string): string[] {
+  return regionCities[region] ?? []
+}
+
+const barangayPool = [
+  'Poblacion', 'San Isidro', 'Santo Niño', 'San Roque', 'San Jose', 'San Juan', 'San Nicolas',
+  'San Vicente', 'Santa Cruz', 'Santa Rosa', 'San Miguel', 'San Rafael', 'San Antonio', 'San Pedro',
+  'Mabini', 'Rizal', 'Bonifacio', 'Malvar', 'Del Pilar', 'Magsaysay', 'Luna', 'Burgos',
+  'Sto. Rosario', 'Kalawakan', 'Pandan',
+]
+
+export function barangaysForCity(city: string): string[] {
+  const forced = city === 'Quezon City' ? ['Greater Lagro'] : []
+  const count = 3 + (hash(city + ':b') % 2)
+  const start = hash(city) % barangayPool.length
+  const picked = new Set<string>(forced)
+  const result = [...forced]
+  for (let i = 0; i < barangayPool.length && result.length < count; i++) {
+    const name = barangayPool[(start + i) % barangayPool.length]
+    if (!picked.has(name)) {
+      picked.add(name)
+      result.push(name)
+    }
+  }
+  return result
+}
+
+export function shortRegionName(region: string): string {
+  if (region === 'National Capital Region (NCR)') return 'NCR'
+  const match = region.match(/\(([^)]+)\)/)
+  if (match) return match[1]
+  return region.replace(/^Region /, '')
+}
+
+export function medianDaysFor(location: DrillLocation, processIds: string[], window: TimeWindow): number {
+  const rows = statisticsFor('Philippines', processIds)
+  const total = rows.reduce((sum, row) => sum + row.total, 0) || 1
+  let median = rows.reduce((sum, row) => sum + row.avgDays * row.total, 0) / total
+  if (location.region) {
+    const index = regionNames.indexOf(location.region)
+    median *= 0.9 + ((index * 7) % 19) / 100
+  }
+  if (location.city) median *= 0.88 + (hash(location.city) % 18) / 100
+  if (location.barangay) median *= 0.85 + (hash(location.barangay) % 22) / 100
+  if (window === '30d') {
+    const key = `${location.region ?? 'ph'}|${location.city ?? ''}|${location.barangay ?? ''}`
+    median *= 0.86 + (hash(key + 'w') % 14) / 100
+  }
+  return Math.round(median * 10) / 10
+}
+
+export function drillLevelLabel(location: DrillLocation): string {
+  if (location.barangay) return 'Barangay'
+  if (location.city) return 'City'
+  if (location.region) return 'Regional'
+  return 'National'
+}
+
+function downScale(
+  scope: { total: number; completed: number; avgDays: number; onTimePct: number },
+  factor: number,
+  key: string,
+) {
+  const total = Math.max(1, Math.round(scope.total * factor))
+  const completed = Math.min(total, Math.max(0, Math.round(total * (0.72 + (hash(key + 'x') % 9) / 100))))
+  return {
+    total,
+    completed,
+    avgDays: scope.avgDays * (0.94 + (hash(key + 'd') % 11) / 100),
+    onTimePct: Math.max(0, Math.min(100, scope.onTimePct + (hash(key + 'o') % 15) - 7)),
+  }
+}
+
+export function drillStats(location: DrillLocation, processIds: string[], window: TimeWindow): Pick<RegionStat, 'total' | 'completed' | 'newRequests' | 'overdue' | 'avgDays' | 'onTimePct'> {
+  const rows = statisticsFor('Philippines', processIds)
+  const total = rows.reduce((sum, row) => sum + row.total, 0)
+  const completed = rows.reduce((sum, row) => sum + row.completed, 0)
+  let scope = {
+    total,
+    completed,
+    avgDays: total ? rows.reduce((sum, row) => sum + row.avgDays * row.total, 0) / total : 0,
+    onTimePct: completed ? rows.reduce((sum, row) => sum + row.onTime * row.completed, 0) / completed : 0,
+  }
+  if (location.region) {
+    const region = statisticsByRegion(processIds).find((row) => row.region === location.region)
+    if (region) {
+      scope = { total: region.total, completed: region.completed, avgDays: region.avgDays, onTimePct: region.onTimePct }
+    }
+  }
+  if (location.city) scope = downScale(scope, 0.25 + (hash(location.city) % 10) / 100, location.city)
+  if (location.barangay) scope = downScale(scope, 0.2 + (hash(location.barangay) % 10) / 100, location.barangay)
+  if (window === '30d') {
+    const key = `${location.region ?? 'ph'}|${location.city ?? ''}|${location.barangay ?? ''}`
+    scope = downScale(scope, 0.06 + (hash(key + 'r') % 7) / 100, key)
+  }
+  const newRequests = scope.total - scope.completed
+  return {
+    total: scope.total,
+    completed: scope.completed,
+    newRequests,
+    overdue: Math.round(newRequests * 0.18),
+    avgDays: Math.round(scope.avgDays * 10) / 10,
+    onTimePct: Math.round(scope.onTimePct),
+  }
 }
