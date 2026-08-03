@@ -2,7 +2,7 @@ import { CheckCircle2, Mail, Search, TicketCheck, X } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout, StatusBadge } from "../components";
-import { birServices, type AgencyService } from "../data";
+import { type AgencyService, birServices } from "../data";
 import {
   addRequest,
   formatDate,
@@ -20,7 +20,6 @@ export default function AgencyDashboard() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [ticket, setTicket] = useState<RequestRecord | null>(null);
   const [lookupError, setLookupError] = useState("");
-  const [nextStatus, setNextStatus] = useState<"Completed" | "Rejected" | "">("");
   const [toast, setToast] = useState("");
 
   const closeModal = () => {
@@ -28,7 +27,6 @@ export default function AgencyDashboard() {
     setTrackingNumber("");
     setTicket(null);
     setLookupError("");
-    setNextStatus("");
     window.setTimeout(() => manageButtonRef.current?.focus(), 0);
   };
 
@@ -81,14 +79,13 @@ export default function AgencyDashboard() {
     }
     setTicket(match);
     setLookupError("");
-    setNextStatus("");
   };
 
-  const submitStatus = (event: FormEvent) => {
-    event.preventDefault();
-    if (!ticket || !nextStatus || ticket.status === nextStatus) return;
-    updateRequest(ticket.serialCode, { status: nextStatus as Status });
-    const message = `Ticket updated to ${nextStatus}. The requester will be notified via email.`;
+  const submitStatus = (status: Extract<Status, "Completed" | "Rejected">) => {
+    if (!ticket || ticket.status === status) return;
+    updateRequest(ticket.serialCode, { status });
+    const message =
+      `Ticket updated to ${status}. The requester will be notified via email.`;
     closeModal();
     setToast(message);
   };
@@ -119,18 +116,20 @@ export default function AgencyDashboard() {
               ))}
             </div>
           </section>
-          <button
-            ref={manageButtonRef}
-            type="button"
-            className="manage-ticket-button"
-            onClick={() => setModalOpen(true)}
-          >
-            <TicketCheck />
-            <span>
-              <strong>Manage Ticket</strong>
-              <small>Find a tracking number and update its status</small>
-            </span>
-          </button>
+          <section className="manage-ticket-section">
+            <h2>Manage a ticket</h2>
+            <button
+              ref={manageButtonRef}
+              type="button"
+              className="manage-ticket-button"
+              onClick={() => setModalOpen(true)}
+            >
+              <TicketCheck />
+              <span>
+                <strong>Manage Ticket</strong>
+              </span>
+            </button>
+          </section>
         </div>
       </main>
 
@@ -152,86 +151,102 @@ export default function AgencyDashboard() {
                 <span>Agency tools</span>
                 <h2 id="ticket-modal-title">Manage Ticket</h2>
               </div>
-              <button type="button" onClick={closeModal} aria-label="Close modal">
+              <button
+                type="button"
+                onClick={closeModal}
+                aria-label="Close modal"
+              >
                 <X />
               </button>
             </header>
 
-            {!ticket ? (
-              <form className="ticket-lookup-form" onSubmit={findTicket}>
-                <label htmlFor="tracking-number">Tracking number</label>
-                <p>Enter the serial code printed on the service receipt.</p>
-                <div className="ticket-search-field">
-                  <Search />
-                  <input
-                    ref={searchInputRef}
-                    id="tracking-number"
-                    value={trackingNumber}
-                    onChange={(event) => {
-                      setTrackingNumber(event.target.value);
-                      setLookupError("");
-                    }}
-                    placeholder="EASE-2026-XXXXXXX"
-                    autoComplete="off"
-                    required
-                  />
-                </div>
-                {lookupError && <p className="ticket-lookup-error">{lookupError}</p>}
-                <button className="button button-primary ticket-modal-submit" type="submit">
-                  Find Ticket
-                </button>
-              </form>
-            ) : (
-              <form className="ticket-update-form" onSubmit={submitStatus}>
-                <div className="ticket-found">
-                  <div className="ticket-found-head">
-                    <div>
-                      <span>Tracking number</span>
-                      <strong>{ticket.serialCode}</strong>
-                    </div>
-                    <StatusBadge status={ticket.status} />
+            {!ticket
+              ? (
+                <form className="ticket-lookup-form" onSubmit={findTicket}>
+                  <label htmlFor="tracking-number">Tracking number</label>
+                  <p>Enter the serial code printed on the service receipt.</p>
+                  <div className="ticket-search-field">
+                    <Search />
+                    <input
+                      ref={searchInputRef}
+                      id="tracking-number"
+                      value={trackingNumber}
+                      onChange={(event) => {
+                        setTrackingNumber(event.target.value);
+                        setLookupError("");
+                      }}
+                      placeholder="EASE-2026-XXXXXXX"
+                      autoComplete="off"
+                      required
+                    />
                   </div>
-                  <dl>
-                    <div><dt>Service</dt><dd>{ticket.processName}</dd></div>
-                    <div><dt>Date generated</dt><dd>{formatDate(ticket.dateSubmitted)}</dd></div>
-                    {ticket.email && (
-                      <div><dt>Notification email</dt><dd><Mail /> {ticket.email}</dd></div>
-                    )}
-                  </dl>
-                </div>
-                <fieldset className="ticket-status-options">
-                  <legend>Update status</legend>
-                  {(["Completed", "Rejected"] as const).map((status) => (
-                    <label className={`ticket-status-choice ${status.toLowerCase()}`} key={status}>
-                      <input
-                        type="radio"
-                        name="ticket-status"
-                        value={status}
-                        checked={nextStatus === status}
-                        disabled={ticket.status === status}
-                        onChange={() => setNextStatus(status)}
-                      />
-                      <span>
-                        <b>{status}</b>
-                        <small>
-                          {status === "Completed"
-                            ? "Mark this service as completed"
-                            : "Mark this service as rejected"}
-                        </small>
-                      </span>
-                    </label>
-                  ))}
-                </fieldset>
-                <div className="ticket-modal-actions">
-                  <button type="button" className="button button-outline" onClick={() => setTicket(null)}>
-                    Back
+                  {lookupError && (
+                    <p className="ticket-lookup-error">{lookupError}</p>
+                  )}
+                  <button
+                    className="button button-primary ticket-modal-submit"
+                    type="submit"
+                  >
+                    Find Ticket
                   </button>
-                  <button className="button button-primary" type="submit" disabled={!nextStatus}>
-                    Update Status
-                  </button>
+                </form>
+              )
+              : (
+                <div className="ticket-update-form">
+                  <div className="ticket-found">
+                    <div className="ticket-found-head">
+                      <div>
+                        <span>Tracking number</span>
+                        <strong>{ticket.serialCode}</strong>
+                      </div>
+                      <StatusBadge status={ticket.status} />
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Service</dt>
+                        <dd>{ticket.processName}</dd>
+                      </div>
+                      <div>
+                        <dt>Date generated</dt>
+                        <dd>{formatDate(ticket.dateSubmitted)}</dd>
+                      </div>
+                      {ticket.email && (
+                        <div>
+                          <dt>Notification email</dt>
+                          <dd>
+                            <Mail /> {ticket.email}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                  <div className="ticket-modal-actions">
+                    <button
+                      type="button"
+                      className="ticket-action-button cancel"
+                      onClick={closeModal}
+                    >
+                      <X /> Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="ticket-action-button rejected"
+                      disabled={ticket.status === "Rejected"}
+                      onClick={() => submitStatus("Rejected")}
+                    >
+                      <X /> Rejected
+                    </button>
+                    <button
+                      type="button"
+                      className="ticket-action-button completed"
+                      disabled={ticket.status === "Completed"}
+                      onClick={() => submitStatus("Completed")}
+                    >
+                      <CheckCircle2 /> Completed
+                    </button>
+                  </div>
                 </div>
-              </form>
-            )}
+              )}
           </section>
         </div>
       )}
@@ -240,7 +255,11 @@ export default function AgencyDashboard() {
         <div className="ticket-toast" role="status" aria-live="polite">
           <CheckCircle2 />
           <p>{toast}</p>
-          <button type="button" onClick={() => setToast("")} aria-label="Dismiss notification">
+          <button
+            type="button"
+            onClick={() => setToast("")}
+            aria-label="Dismiss notification"
+          >
             <X />
           </button>
         </div>
