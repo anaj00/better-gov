@@ -1,6 +1,13 @@
-import { Check, Copy, Download, Mail, Plus, TriangleAlert } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Download,
+  Mail,
+  NotebookPen,
+  TriangleAlert,
+} from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../components";
 import { activeProcesses } from "../data";
 import { createTrackingQr, downloadReceipt } from "../receiptPdf";
@@ -9,9 +16,12 @@ import easephLogo from "../assets/easeph-logo-transparent.png";
 
 export default function AgencyReceipt() {
   const { serial } = useParams();
+  const navigate = useNavigate();
   const request = getRequests().find((item) => item.serialCode === serial);
   const [email, setEmail] = useState(request?.email || "");
-  const [saved, setSaved] = useState(Boolean(request?.email));
+  const [internalNotes, setInternalNotes] = useState(
+    request?.internalNotes || "",
+  );
   const [copied, setCopied] = useState(false);
   const [qrCode, setQrCode] = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -19,17 +29,20 @@ export default function AgencyReceipt() {
 
   useEffect(() => {
     if (!request) return;
-    createTrackingQr(request).then(setQrCode).catch(() =>
-      setError("The tracking QR code could not be prepared."),
-    );
+    createTrackingQr(request)
+      .then(setQrCode)
+      .catch(() => setError("The tracking QR code could not be prepared."));
   }, [request]);
 
   if (!request) return <Navigate to="/agency/dashboard" replace />;
 
-  const saveEmail = (event: FormEvent) => {
+  const confirmReceipt = (event: FormEvent) => {
     event.preventDefault();
-    updateRequest(request.serialCode, { email: email.trim() });
-    setSaved(true);
+    updateRequest(request.serialCode, {
+      email: email.trim() || undefined,
+      internalNotes: internalNotes.trim() || undefined,
+    });
+    navigate("/agency/dashboard");
   };
 
   const handleDownload = async () => {
@@ -45,91 +58,146 @@ export default function AgencyReceipt() {
   };
 
   return (
-    <Layout agency>
+    <Layout agency hideFooter>
       <main className="agency-receipt-page">
-        <div className="container receipt-page-wrap">
-          <div className="receipt-page-heading">
-            <div>
-              <h1>Receipt generated</h1>
-            </div>
-            <Link className="button button-outline" to="/agency/dashboard">
-              <Plus /> Generate another
-            </Link>
-          </div>
-
-          <article className="receipt-sheet">
-            <header className="receipt-sheet-head">
-              <div>
-                <img src={easephLogo} alt="EasePH" />
-                <small>Government processes, made easy.</small>
-              </div>
-              <div>
-                <strong>SERVICE RECEIPT</strong>
-                <small>{request.serialCode}</small>
-              </div>
-            </header>
-            <div className="receipt-red-rule" />
-            <div className="receipt-sheet-body">
-              <div className="receipt-intro">
-                <h2>Government Service Record</h2>
-                <p>Keep this receipt and scan the QR code to track this service.</p>
-              </div>
-              <div className="receipt-code-panel">
+        <div className="receipt-workspace">
+          <h1 className="receipt-success-heading">
+            <span>
+              <Check />
+            </span>
+            Receipt generated
+          </h1>
+          <section className="receipt-preview-column">
+            <article className="receipt-sheet">
+              <header className="receipt-sheet-head">
                 <div>
-                  <span>SERIAL CODE</span>
-                  <strong>{request.serialCode}</strong>
-                  <small>Generated {formatDate(request.dateSubmitted)}</small>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(request.serialCode);
-                      setCopied(true);
-                      window.setTimeout(() => setCopied(false), 1600);
-                    }}
-                  >
-                    {copied ? <Check /> : <Copy />} {copied ? "Copied" : "Copy code"}
-                  </button>
+                  <img src={easephLogo} alt="EasePH" />
+                  <small>Government processes, made easy.</small>
                 </div>
-                {qrCode && <img src={qrCode} alt="QR code for public status tracking" />}
-              </div>
-              <dl className="receipt-fields">
-                <div><dt>Service</dt><dd>{request.processName}</dd></div>
-                <div><dt>Assigned agency</dt><dd>{request.agency}</dd></div>
-                <div><dt>Current status</dt><dd><span className="receipt-status">{request.status}</span></dd></div>
-                <div><dt>Estimated processing</dt><dd>{activeProcesses[request.processId].estimate}</dd></div>
-              </dl>
-            </div>
-            <footer className="receipt-sheet-footer">
-              <span>Government processes, made easy.</span>
-              <b>Scan the QR code to view the latest status.</b>
-            </footer>
-          </article>
-
-          <section className="receipt-tools">
-            <form className="receipt-email" onSubmit={saveEmail}>
-              <Mail />
-              <div>
-                <strong>Enter your email to receive email notifications</strong>
                 <div>
-                  <input
-                    required
-                    type="email"
-                    value={email}
-                    onChange={(event) => { setEmail(event.target.value); setSaved(false); }}
-                    placeholder="requester@email.com"
-                    aria-label="Notification email"
-                  />
-                  <button className="button button-subtle" type="submit">
-                    {saved ? "Email saved" : "Save email"}
-                  </button>
+                  <strong>SERVICE RECEIPT</strong>
+                  <small>{request.serialCode}</small>
                 </div>
+              </header>
+              <div className="receipt-red-rule" />
+              <div className="receipt-sheet-body">
+                <div className="receipt-intro">
+                  <h2>Government Service Record</h2>
+                  <p>
+                    Keep this receipt and scan the QR code to track this
+                    service.
+                  </p>
+                </div>
+                <div className="receipt-code-panel">
+                  <div>
+                    <span>SERIAL CODE</span>
+                    <strong>{request.serialCode}</strong>
+                    <small>Generated {formatDate(request.dateSubmitted)}</small>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(request.serialCode);
+                        setCopied(true);
+                        window.setTimeout(() => setCopied(false), 1600);
+                      }}
+                    >
+                      {copied ? <Check /> : <Copy />}{" "}
+                      {copied ? "Copied" : "Copy code"}
+                    </button>
+                  </div>
+                  {qrCode && (
+                    <img
+                      src={qrCode}
+                      alt="QR code for public status tracking"
+                    />
+                  )}
+                </div>
+                <dl className="receipt-fields">
+                  <div>
+                    <dt>Service</dt>
+                    <dd>{request.processName}</dd>
+                  </div>
+                  <div>
+                    <dt>Assigned agency</dt>
+                    <dd>{request.agency}</dd>
+                  </div>
+                  <div>
+                    <dt>Current status</dt>
+                    <dd>{request.status}</dd>
+                  </div>
+                  <div>
+                    <dt>Estimated processing</dt>
+                    <dd>{activeProcesses[request.processId].estimate}</dd>
+                  </div>
+                </dl>
+              </div>
+              <footer className="receipt-sheet-footer">
+                <span>Government processes, made easy.</span>
+                <b>Scan the QR code to view the latest status.</b>
+              </footer>
+            </article>
+          </section>
+
+          <aside className="receipt-control-column">
+            <form className="receipt-control-form" onSubmit={confirmReceipt}>
+              <section className="receipt-control-field">
+                <div className="receipt-control-label">
+                  <Mail />
+                  <div>
+                    <strong>
+                      Enter email to receive notifications
+                    </strong>
+                  </div>
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="requester@email.com"
+                  aria-label="Notification email"
+                />
+              </section>
+
+              <section className="receipt-control-field">
+                <div className="receipt-control-label">
+                  <NotebookPen />
+                  <div>
+                    <strong>Internal notes</strong>
+                  </div>
+                </div>
+                <textarea
+                  value={internalNotes}
+                  onChange={(event) => setInternalNotes(event.target.value)}
+                  placeholder="Add context or handling instructions..."
+                  aria-label="Internal notes"
+                  rows={7}
+                />
+              </section>
+
+              <div className="receipt-control-actions">
+                <button
+                  className="button button-outline receipt-download"
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={downloading}
+                >
+                  <Download />{" "}
+                  {downloading ? "Preparing PDF..." : "Download receipt"}
+                </button>
+                <button
+                  className="button button-primary receipt-confirm"
+                  type="submit"
+                >
+                  <Check /> Confirm
+                </button>
               </div>
             </form>
-            <button className="button button-primary receipt-download" onClick={handleDownload} disabled={downloading}>
-              <Download /> {downloading ? "Preparing PDF..." : "Download receipt"}
-            </button>
-          </section>
-          {error && <p className="receipt-error"><TriangleAlert /> {error}</p>}
+            {error && (
+              <p className="receipt-error">
+                <TriangleAlert /> {error}
+              </p>
+            )}
+          </aside>
         </div>
       </main>
     </Layout>
