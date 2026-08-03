@@ -4472,7 +4472,7 @@ textarea {
   width: min(100%, 880px);
   min-height: 520px;
   max-height: calc(100vh - 60px);
-  overflow: hidden;
+  overflow-y: auto;
   border-radius: 22px;
   background: white;
   box-shadow: 0 30px 80px rgba(5, 16, 49, .32);
@@ -4665,6 +4665,83 @@ textarea {
 .ticket-found dd svg {
   width: 18px;
   vertical-align: middle;
+}
+
+.ticket-internal-notes {
+  margin-top: 24px;
+}
+
+.ticket-internal-notes label {
+  color: #0f1f55;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ticket-notes-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ticket-notes-heading button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #cdd6e5;
+  border-radius: 8px;
+  background: white;
+  color: #0b2e8a;
+  cursor: pointer;
+  place-items: center;
+}
+
+.ticket-notes-heading button:hover {
+  border-color: #0b2e8a;
+  background: #eff4ff;
+}
+
+.ticket-notes-heading button svg {
+  width: 16px;
+}
+
+.ticket-internal-notes p {
+  margin: 4px 0 10px;
+  color: #687590;
+  font-size: 12px;
+}
+
+.ticket-internal-notes textarea {
+  width: 100%;
+  min-height: 108px;
+  margin-top: 14px;
+  padding: 12px 13px;
+  border: 1px solid #cdd6e5;
+  border-radius: 10px;
+  color: #0f1f55;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.ticket-internal-notes textarea:read-only {
+  border-color: #e1e6ef;
+  background: #f5f7fb;
+  color: #5d6983;
+  cursor: default;
+  resize: none;
+}
+
+.ticket-internal-notes textarea.is-editing {
+  background: white;
+}
+
+.ticket-internal-notes textarea:focus {
+  border-color: #0b2e8a;
+  box-shadow: 0 0 0 3px rgba(11, 46, 138, .1);
+  outline: none;
 }
 
 .ticket-status-options {
