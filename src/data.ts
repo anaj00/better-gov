@@ -629,6 +629,48 @@ export function medianDaysFor(
   return scaleMedian(median, location, window);
 }
 
+function scaleOnTime(
+  pct: number,
+  location: DrillLocation,
+  window: TimeWindow,
+): number {
+  if (location.region) {
+    const index = regionNames.indexOf(location.region);
+    pct += ((index * 11) % 13) - 6;
+  }
+  if (location.city) pct += (hash(location.city + "o") % 15) - 7;
+  if (location.barangay) pct += (hash(location.barangay + "o") % 15) - 7;
+  if (window === "30d") {
+    const key = `${location.region ?? "ph"}|${location.city ?? ""}|${
+      location.barangay ?? ""
+    }`;
+    pct += (hash(key + "ot") % 11) - 5;
+  }
+  return Math.max(0, Math.min(100, Math.round(pct)));
+}
+
+export function onTimePctFor(
+  location: DrillLocation,
+  processIds: string[],
+  window: TimeWindow,
+): number {
+  const rows = statisticsFor("Philippines", processIds);
+  const completed = rows.reduce((sum, row) => sum + row.completed, 0) || 1;
+  const pct =
+    rows.reduce((sum, row) => sum + row.onTime * row.completed, 0) / completed;
+  return scaleOnTime(pct, location, window);
+}
+
+export function processOnTime(
+  id: string,
+  location: DrillLocation,
+  window: TimeWindow,
+): number {
+  const index = processCatalog.findIndex((p) => p.id === id);
+  const base = 74 + (index % 20);
+  return scaleOnTime(base, location, window);
+}
+
 export function processMedianDays(
   id: string,
   location: DrillLocation,

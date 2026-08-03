@@ -2665,12 +2665,115 @@ footer {
     flex: 1 1 40%;
     max-width: 45%;
 }
-.lead-row:disabled {
-    cursor: default;
-    opacity: 1;
+.lead-ontime {
+    flex: none;
+    font: 700 10px Manrope;
+    color: #1749c6;
+    background: #edf2ff;
+    border-radius: 20px;
+    padding: 4px 9px;
+    white-space: nowrap;
 }
-.lead-row:disabled .drill-row-button {
-    display: none;
+.lead-ontime.low {
+    color: #c0392b;
+    background: #fdecea;
+}
+.lead-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+.lead-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.lead-table thead th {
+    padding: 10px 12px;
+    font: 800 10px Manrope;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #5b6a8c;
+    text-align: left;
+    background: #f4f7fc;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+.lead-table th.lead-th-rank,
+.lead-table td.lead-td-rank {
+    width: 44px;
+    text-align: center;
+}
+.lead-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #eef2f8;
+    vertical-align: middle;
+}
+.lead-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.lead-table tbody tr {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.lead-table tbody tr:hover {
+    background: #eef3fb;
+}
+.lead-table tbody tr.lead-row-disabled {
+    cursor: default;
+}
+.lead-table tbody tr.lead-row-disabled:hover {
+    background: transparent;
+}
+.lead-table tbody tr.lead-row-disabled .lead-td-button {
+    visibility: hidden;
+}
+.lead-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+.lead-sort:hover {
+    color: var(--forest);
+}
+.lead-sort.active {
+    color: var(--teal);
+}
+.lead-sort-arrow {
+    font-size: 12px;
+    line-height: 1;
+    color: #a6b1cc;
+}
+.lead-sort.active .lead-sort-arrow {
+    color: var(--teal);
+}
+.lead-td-name .lead-name {
+    max-width: 100%;
+}
+.lead-td-median {
+    width: 80px;
+    white-space: nowrap;
+}
+.lead-td-median .drill-median {
+    font: 800 12px Manrope;
+    color: #1749c6;
+}
+.lead-td-ontime {
+    width: 96px;
+}
+.lead-td-button {
+    width: 28px;
+    text-align: right;
+}
+.lead-td-button .drill-row-button {
+    width: 16px;
+    color: #a6b1cc;
 }
 @media (max-width: 900px) {
     .drill-panel-tools {

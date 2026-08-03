@@ -14,8 +14,10 @@ import {
   drillLevelLabel,
   drillStats,
   medianDaysFor,
+  onTimePctFor,
   processCatalog,
   processMedianDays,
+  processOnTime,
   regionNames,
   shortRegionName,
 } from "../data";
@@ -29,6 +31,8 @@ export default function DrillDownSection() {
   const [agency, setAgency] = useState("");
   const [processId, setProcessId] = useState("");
   const [view, setView] = useState<"agency" | "area" | "process">("agency");
+  const [sortKey, setSortKey] = useState<"median" | "onTime">("median");
+  const [sortDir, setSortDir] = useState<1 | -1>(1);
   const agencies = [...new Set(processCatalog.map((p) => p.agencyName))];
   const filteredCatalog = processCatalog.filter(
     (p) =>
@@ -59,6 +63,12 @@ export default function DrillDownSection() {
             window,
           )
       : medianDaysFor({ region: child }, processIds, window);
+  const childLocation = (child: string): DrillLocation =>
+    drill.region
+      ? drill.city
+        ? { region: drill.region, city: drill.city, barangay: child }
+        : { region: drill.region, city: child }
+      : { region: child };
   const childMedians = children.map((child) => childMedian(child));
   const drillInto = (child: string) =>
     setDrill((current) =>
@@ -86,6 +96,7 @@ export default function DrillDownSection() {
         name,
         processes: ids.length,
         median: medianDaysFor(drill, ids, window),
+        onTime: onTimePctFor(drill, ids, window),
       };
     })
     .sort((a, b) => a.median - b.median);
@@ -94,6 +105,7 @@ export default function DrillDownSection() {
       id: child,
       name: child,
       median: childMedians[index],
+      onTime: onTimePctFor(childLocation(child), processIds, window),
     }))
     .sort((a, b) => a.median - b.median);
   const processRows = processCatalog
@@ -107,6 +119,7 @@ export default function DrillDownSection() {
       name: p.name,
       sub: agency ? undefined : p.agencyName,
       median: processMedianDays(p.id, drill, window),
+      onTime: processOnTime(p.id, drill, window),
     }))
     .sort((a, b) => a.median - b.median);
   type LeaderboardRow = {
@@ -114,6 +127,7 @@ export default function DrillDownSection() {
     name: string;
     sub?: string;
     median: number;
+    onTime: number;
   };
   const boardRows: LeaderboardRow[] =
     view === "agency"
@@ -121,7 +135,19 @@ export default function DrillDownSection() {
       : view === "process"
         ? processRows
         : areaRows;
-  const maxRow = Math.max(...boardRows.map((r) => r.median), 0.1);
+  const toggleSort = (key: "median" | "onTime") => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 1 ? -1 : 1));
+    } else {
+      setSortKey(key);
+      setSortDir(1);
+    }
+  };
+  const sortedRows = [...boardRows].sort((a, b) =>
+    sortKey === "median"
+      ? (a.median - b.median) * sortDir
+      : (a.onTime - b.onTime) * sortDir,
+  );
   const onRowClick = (name: string) => {
     if (view === "agency") {
       setAgency(name);
@@ -133,7 +159,7 @@ export default function DrillDownSection() {
   };
   const listTitle =
     view === "agency"
-      ? "Fastest agencies"
+      ? "Agencies"
       : view === "process"
         ? agency
           ? `${agency} · processes`
@@ -171,6 +197,42 @@ export default function DrillDownSection() {
           <p>{hint}</p>
         </div>
         <div className="drill-panel">
+          <div className="visualization-tabs">
+            <div className="leaderboard-tabs">
+              <button
+                className={view === "agency" ? "active" : ""}
+                onClick={() => setView("agency")}
+              >
+                By agency
+              </button>
+              <button
+                className={view === "area" ? "active" : ""}
+                onClick={() => setView("area")}
+              >
+                By area
+              </button>
+              <button
+                className={view === "process" ? "active" : ""}
+                onClick={() => setView("process")}
+              >
+                By process
+              </button>
+            </div>
+            <div className="time-toggle">
+              <button
+                className={window === "all" ? "active" : ""}
+                onClick={() => setWindow("all")}
+              >
+                All time
+              </button>
+              <button
+                className={window === "30d" ? "active" : ""}
+                onClick={() => setWindow("30d")}
+              >
+                Last 30 days
+              </button>
+            </div>
+          </div>
           <div className="drill-panel-tools">
             {view !== "agency" && (
               <div className="filter-bar">
@@ -207,42 +269,6 @@ export default function DrillDownSection() {
                 </label>
               </div>
             )}
-          </div>
-          <div className="visualization-tabs">
-            <div className="leaderboard-tabs">
-              <button
-                className={view === "agency" ? "active" : ""}
-                onClick={() => setView("agency")}
-              >
-                By agency
-              </button>
-              <button
-                className={view === "area" ? "active" : ""}
-                onClick={() => setView("area")}
-              >
-                By area
-              </button>
-              <button
-                className={view === "process" ? "active" : ""}
-                onClick={() => setView("process")}
-              >
-                By process
-              </button>
-            </div>
-            <div className="time-toggle">
-              <button
-                className={window === "all" ? "active" : ""}
-                onClick={() => setWindow("all")}
-              >
-                All time
-              </button>
-              <button
-                className={window === "30d" ? "active" : ""}
-                onClick={() => setWindow("30d")}
-              >
-                Last 30 days
-              </button>
-            </div>
           </div>
           <div className="drill-breadcrumb">
             <button
@@ -307,33 +333,76 @@ export default function DrillDownSection() {
                 </button>
               )}
             </div>
-            {boardRows.map((row, index) => (
-              <button
-                key={row.id}
-                className="drill-row lead-row"
-                onClick={() => onRowClick(row.name)}
-                disabled={view === "process"}
-              >
-                <span className={`lead-rank rank-${index + 1}`}>
-                  {index + 1}
-                </span>
-                <span className="drill-name lead-name">
-                  {row.name}
-                  {row.sub && <small className="lead-sub">{row.sub}</small>}
-                </span>
-                <span className="drill-track lead-track">
-                  <i
-                    style={{
-                      width: `${Math.round((row.median / maxRow) * 100)}%`,
-                    }}
-                  />
-                </span>
-                <span className="drill-median">{row.median.toFixed(1)}d</span>
-                {view !== "process" && (
-                  <ChevronRight className="drill-row-button" />
-                )}
-              </button>
-            ))}
+            <div className="lead-table-wrap">
+              <table className="lead-table">
+                <thead>
+                  <tr>
+                    <th className="lead-th-rank">#</th>
+                    <th>Name</th>
+                    <th>
+                      <button
+                        className={`lead-sort${sortKey === "median" ? " active" : ""}`}
+                        onClick={() => toggleSort("median")}
+                      >
+                        Speed
+                        <SortArrow dir={sortKey === "median" ? sortDir : 0} />
+                      </button>
+                    </th>
+                    <th>
+                      <button
+                        className={`lead-sort${sortKey === "onTime" ? " active" : ""}`}
+                        onClick={() => toggleSort("onTime")}
+                      >
+                        On time
+                        <SortArrow dir={sortKey === "onTime" ? sortDir : 0} />
+                      </button>
+                    </th>
+                    {view !== "process" && <th aria-hidden="true" />}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedRows.map((row, index) => (
+                    <tr
+                      key={row.id}
+                      className={`lead-row${view === "process" ? " lead-row-disabled" : ""}`}
+                      onClick={() => onRowClick(row.name)}
+                      aria-disabled={view === "process"}
+                    >
+                      <td className="lead-td-rank">
+                        <span className={`lead-rank rank-${index + 1}`}>
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="lead-td-name">
+                        <span className="lead-name">
+                          {row.name}
+                          {row.sub && (
+                            <small className="lead-sub">{row.sub}</small>
+                          )}
+                        </span>
+                      </td>
+                      <td className="lead-td-median">
+                        <span className="drill-median">
+                          {row.median.toFixed(1)}d
+                        </span>
+                      </td>
+                      <td className="lead-td-ontime">
+                        <span
+                          className={`lead-ontime${row.onTime < 70 ? " low" : ""}`}
+                        >
+                          {row.onTime}%
+                        </span>
+                      </td>
+                      {view !== "process" && (
+                        <td className="lead-td-button">
+                          <ChevronRight className="drill-row-button" />
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="metric-grid">
             <Metric
@@ -397,5 +466,13 @@ function Metric({
         <strong>{value}</strong>
       </div>
     </div>
+  );
+}
+
+function SortArrow({ dir }: { dir: 1 | -1 | 0 }) {
+  return (
+    <span className="lead-sort-arrow" aria-hidden="true">
+      {dir === 0 ? "↕" : dir === 1 ? "↑" : "↓"}
+    </span>
   );
 }
