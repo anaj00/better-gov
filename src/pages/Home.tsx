@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Layout } from "../components";
+import { Layout, Logo } from "../components";
 import DrillDownSection from "../components/DrillDownSection";
 
 const stats = [
@@ -152,6 +152,7 @@ export default function Home() {
         <section className="brand-hero">
           <div className="container brand-hero-grid">
             <div className="brand-hero-copy">
+              <Logo />
               <h1>
                 Government
                 <br />

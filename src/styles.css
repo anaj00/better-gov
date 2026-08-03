@@ -5237,7 +5237,7 @@ footer {
     letter-spacing: 1.25px;
 }
 .brand-home {
-    min-height: calc(100vh - 88px);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: linear-gradient(180deg, #fff 0%, #fff 70%, #f8faff 100%);
@@ -5272,7 +5272,7 @@ footer {
     background-size: cover, cover;
 }
 .brand-hero-grid {
-    min-height: clamp(700px, calc(100vh - 300px), 800px);
+    min-height: clamp(760px, calc(100vh - 180px), 880px);
     display: grid;
     grid-template-columns: 43% 57%;
     align-items: stretch;
@@ -5335,7 +5335,7 @@ footer {
     border: 1px solid #cad4e8;
 }
 .civic-visual {
-    min-height: clamp(700px, calc(100vh - 300px), 800px);
+    min-height: clamp(760px, calc(100vh - 180px), 880px);
     position: relative;
     align-self: stretch;
 }
@@ -5909,6 +5909,11 @@ footer {
     .brand-hero-copy {
         text-align: center;
         padding-bottom: 15px;
+    }
+    .brand-hero-copy .logo {
+        width: fit-content;
+        margin-inline: auto;
+        align-items: center;
     }
     .brand-hero-copy p {
         margin-inline: auto;

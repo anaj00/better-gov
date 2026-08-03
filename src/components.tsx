@@ -1,7 +1,6 @@
-import { ArrowRight, Menu, X } from "lucide-react";
-import { type ReactNode, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, setAuthenticated } from "./store";
+import { ArrowRight } from "lucide-react";
+import { type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import type { Status } from "./types";
 import easephLogo from "./assets/easeph-logo-transparent.png";
 
@@ -11,62 +10,6 @@ export function Logo({ inverse = false }: { inverse?: boolean }) {
       <img src={easephLogo} alt="EasePH" />
       <span className="tagline">Government Processes, Made Easy</span>
     </Link>
-  );
-}
-
-export function Header({ agency = false }: { agency?: boolean }) {
-  const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-  const authenticated = isAuthenticated();
-  return (
-    <header className="site-header home-header">
-      <div className="container header-inner">
-        {agency ? (
-          <div className="agency-brand">
-            <Logo />
-            <span>Agency Workspace</span>
-          </div>
-        ) : (
-          <Logo />
-        )}
-        <nav className={open ? "nav-open" : ""}>
-          {agency && authenticated ? (
-            <>
-              <NavLink to="/agency/dashboard">Dashboard</NavLink>
-              <button
-                className="header-cta"
-                onClick={() => {
-                  setAuthenticated(false);
-                  navigate("/agency/login");
-                }}
-              >
-                Log out <ArrowRight />
-              </button>
-            </>
-          ) : agency ? (
-            <Link to="/" className="header-cta">
-              Public Site <ArrowRight />
-            </Link>
-          ) : (
-            <>
-              <NavLink to="/" end>
-                Home
-              </NavLink>
-              <Link to="/status" className="header-cta">
-                Track a service <ArrowRight />
-              </Link>
-            </>
-          )}
-        </nav>
-        <button
-          className="menu-button"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X /> : <Menu />}
-        </button>
-      </div>
-    </header>
   );
 }
 
@@ -101,10 +44,7 @@ export function Footer() {
 
 export function Layout({
   children,
-  agency = false,
-  agencyNav = false,
   home = false,
-  hideHeader = false,
   hideFooter = false,
 }: {
   children: ReactNode;
@@ -116,7 +56,6 @@ export function Layout({
 }) {
   return (
     <div className="site-layout">
-      {!hideHeader && <Header agency={agency || agencyNav} />}
       {children}
       {!home && !hideFooter && <Footer />}
     </div>
