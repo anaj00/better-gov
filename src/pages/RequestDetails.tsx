@@ -23,7 +23,7 @@ export default function RequestDetails() {
   const [note, setNote] = useState(original?.requesterNote || "");
   const [saved, setSaved] = useState(false);
   const [completed, setCompleted] = useState(original?.status === "Completed");
-  if (!original) return <Navigate to="/agency/requests" />;
+  if (!original) return <Navigate to="/agency/dashboard" />;
   const save = (e: FormEvent) => {
     e.preventDefault();
     updateRequest(original.serialCode, {
@@ -38,7 +38,7 @@ export default function RequestDetails() {
     <Layout agency>
       <main className="detail-page">
         <div className="container">
-          <Link to="/agency/requests" className="back-link">
+          <Link to="/agency/dashboard" className="back-link">
             <ArrowLeft /> Back to requests
           </Link>
           <div className="detail-heading">

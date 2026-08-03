@@ -1,4 +1,11 @@
-import { ArrowRight, CheckCircle2, Clock3, Search } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Search,
+  UserRound,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { EmptyState, Layout, StatusBadge } from "../components";
@@ -10,11 +17,13 @@ export default function AgencyDashboard() {
   const [query, setQuery] = useState("");
   const [process, setProcess] = useState("");
   const [status, setStatus] = useState<Status | "">("");
+
   useEffect(() => {
     const sync = () => setRequests(getRequests());
     window.addEventListener("easeph-requests-changed", sync);
     return () => window.removeEventListener("easeph-requests-changed", sync);
   }, []);
+
   const visible = useMemo(
     () =>
       requests.filter((request) =>
@@ -26,13 +35,14 @@ export default function AgencyDashboard() {
       ),
     [requests, query, process, status],
   );
+
   return (
     <Layout agency>
       <main className="agency-page">
         <div className="container">
           <div className="agency-heading">
             <div>
-              <h1>Requests</h1>
+              <h1>Dashboard</h1>
               <p>Review and update requests submitted through EasePH.</p>
             </div>
             <span className="agency-date">
@@ -47,7 +57,8 @@ export default function AgencyDashboard() {
               <span>
                 <small>New requests</small>
                 <strong>
-                  {requests.filter((r) => r.status === "New").length}
+                  {requests.filter((request) => request.status === "New")
+                    .length}
                 </strong>
               </span>
             </div>
@@ -58,7 +69,8 @@ export default function AgencyDashboard() {
               <span>
                 <small>Completed requests</small>
                 <strong>
-                  {requests.filter((r) => r.status === "Completed").length}
+                  {requests.filter((request) => request.status === "Completed")
+                    .length}
                 </strong>
               </span>
             </div>
@@ -78,12 +90,12 @@ export default function AgencyDashboard() {
                   <input
                     placeholder="Search code or business"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(event) => setQuery(event.target.value)}
                   />
                 </label>
                 <select
                   value={process}
-                  onChange={(e) => setProcess(e.target.value)}
+                  onChange={(event) => setProcess(event.target.value)}
                 >
                   <option value="">All processes</option>
                   <option value="bir-registration">BIR Registration</option>
@@ -91,7 +103,8 @@ export default function AgencyDashboard() {
                 </select>
                 <select
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as Status | "")}
+                  onChange={(event) =>
+                    setStatus(event.target.value as Status | "")}
                 >
                   <option value="">All statuses</option>
                   <option>New</option>
@@ -101,51 +114,42 @@ export default function AgencyDashboard() {
             </div>
             {visible.length
               ? (
-                <div className="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Request</th>
-                        <th>Process</th>
-                        <th>Business</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th>Approval</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {visible.map((request) => (
-                        <tr key={request.serialCode}>
-                          <td>
-                            <b>{request.serialCode}</b>
-                          </td>
-                          <td>
-                            <span>{request.processName}</span>
-                            <small>{request.agency}</small>
-                          </td>
-                          <td>{request.businessName}</td>
-                          <td>{formatDate(request.dateSubmitted, "short")}</td>
-                          <td>
-                            <StatusBadge status={request.status} />
-                          </td>
-                          <td>
-                            {request.approvalDate
-                              ? formatDate(request.approvalDate, "short")
-                              : "—"}
-                          </td>
-                          <td>
-                            <Link
-                              to={`/agency/requests/${request.serialCode}`}
-                              aria-label="Open request"
-                            >
-                              <ArrowRight />
-                            </Link>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="request-card-grid">
+                  {visible.map((request, index) => (
+                    <Link
+                      className="agency-request-card"
+                      key={`${request.serialCode}-${index}`}
+                      to={`/agency/dashboard/${request.serialCode}`}
+                    >
+                      <div className="agency-request-card-head">
+                        <b>{request.serialCode}</b>
+                        <StatusBadge status={request.status} />
+                      </div>
+                      <div className="agency-request-process">
+                        <span>{request.processName}</span>
+                        <small>{request.agency}</small>
+                      </div>
+                      <h3>{request.businessName}</h3>
+                      <div className="agency-request-meta">
+                        <span>
+                          <UserRound /> {request.applicantName}
+                        </span>
+                        <span>
+                          <CalendarDays /> Submitted{" "}
+                          {formatDate(request.dateSubmitted, "short")}
+                        </span>
+                        {request.approvalDate && (
+                          <span>
+                            <CheckCircle2 /> Approved{" "}
+                            {formatDate(request.approvalDate, "short")}
+                          </span>
+                        )}
+                      </div>
+                      <div className="agency-request-open">
+                        View request <ArrowRight />
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               )
               : (

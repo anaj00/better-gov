@@ -1,7 +1,7 @@
-import { ArrowRight, Menu, RotateCcw, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, resetRequests, setAuthenticated } from "./store";
+import { isAuthenticated, setAuthenticated } from "./store";
 import type { Status } from "./types";
 import easephLogo from "./assets/easeph-logo-transparent.png";
 
@@ -14,19 +14,53 @@ export function Logo({ inverse = false }: { inverse?: boolean }) {
   );
 }
 
-export function Header() {
+export function Header({ agency = false }: { agency?: boolean }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const authenticated = isAuthenticated();
   return (
     <header className="site-header home-header">
       <div className="container header-inner">
-        <Logo />
+        {agency
+          ? (
+            <div className="agency-brand">
+              <Logo />
+              <span>Agency Workspace</span>
+            </div>
+          )
+          : <Logo />}
         <nav className={open ? "nav-open" : ""}>
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/dashboard">Stats</NavLink>
-          <NavLink to="/status">Track</NavLink>
-          <Link to="/request" className="header-cta">
-            Request a Process <ArrowRight />
-          </Link>
+          {agency && authenticated
+            ? (
+              <>
+                <NavLink to="/agency/dashboard">Dashboard</NavLink>
+                <button
+                  className="header-cta"
+                  onClick={() => {
+                    setAuthenticated(false);
+                    navigate("/agency/login");
+                  }}
+                >
+                  Log out <ArrowRight />
+                </button>
+              </>
+            )
+            : agency
+            ? (
+              <Link to="/" className="header-cta">
+                Public Site <ArrowRight />
+              </Link>
+            )
+            : (
+              <>
+                <NavLink to="/" end>Home</NavLink>
+                <NavLink to="/dashboard">Stats</NavLink>
+                <NavLink to="/status">Track</NavLink>
+                <Link to="/request" className="header-cta">
+                  Request a Process <ArrowRight />
+                </Link>
+              </>
+            )}
         </nav>
         <button
           className="menu-button"
@@ -59,7 +93,7 @@ export function Footer() {
         </div>
         <div>
           <strong>For agencies</strong>
-          <Link to="/agency">Agency portal</Link>
+          <Link to="/agency/login">Agency portal</Link>
           <span>support@easeph.org</span>
         </div>
       </div>
@@ -72,51 +106,27 @@ export function Footer() {
 }
 
 export function Layout(
-  { children, agency = false, home = false, hideFooter = false }: {
+  {
+    children,
+    agency = false,
+    agencyNav = false,
+    home = false,
+    hideHeader = false,
+    hideFooter = false,
+  }: {
     children: ReactNode;
     agency?: boolean;
+    agencyNav?: boolean;
     home?: boolean;
+    hideHeader?: boolean;
     hideFooter?: boolean;
   },
 ) {
   return (
     <div className="site-layout">
-      <Header />
-      {agency && <AgencyBar />}
+      {!hideHeader && <Header agency={agency || agencyNav} />}
       {children}
       {!home && !hideFooter && <Footer />}
-    </div>
-  );
-}
-
-function AgencyBar() {
-  const navigate = useNavigate();
-  if (!isAuthenticated()) return null;
-  return (
-    <div className="agency-bar">
-      <div className="container">
-        <span>
-          <ShieldCheck size={16} /> Agency workspace
-        </span>
-        <div>
-          <button
-            onClick={() => {
-              resetRequests();
-              location.reload();
-            }}
-          >
-            <RotateCcw size={14} /> Reset data
-          </button>
-          <button
-            onClick={() => {
-              setAuthenticated(false);
-              navigate("/agency");
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

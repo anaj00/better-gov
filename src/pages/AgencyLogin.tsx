@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Layout } from "../components";
+import { Layout, Logo } from "../components";
 import { isAuthenticated, setAuthenticated } from "../store";
 
 export default function AgencyLogin() {
@@ -16,34 +16,37 @@ export default function AgencyLogin() {
   const [password, setPassword] = useState("easeph2026");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
-  if (isAuthenticated()) return <Navigate to="/agency/requests" replace />;
+  if (isAuthenticated()) return <Navigate to="/agency/dashboard" replace />;
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (email === "agency@easeph.org" && password === "easeph2026") {
       setAuthenticated(true);
-      navigate("/agency/requests");
+      navigate("/agency/dashboard");
     } else {setError(
-        "Incorrect email or password. Use the sign-in credentials shown below.",
+        "Incorrect email or password. Check the prefilled credentials and try again.",
       );}
   };
   return (
-    <Layout>
+    <Layout hideHeader hideFooter>
       <main className="login-page">
         <div className="login-side">
-          <div>
-            <h1>Manage requests with clarity.</h1>
-            <p>
-              Review submitted business requests, record approvals, and keep the
-              public informed.
-            </p>
-            <ul>
-              <li>
-                <ShieldCheck /> Secure agency access
-              </li>
-              <li>
-                <LockKeyhole /> Protected request management
-              </li>
-            </ul>
+          <div className="login-side-inner">
+            <Logo inverse />
+            <div className="login-side-copy">
+              <h1>Manage requests with clarity.</h1>
+              <p>
+                Review submitted business requests, record approvals, and keep
+                the public informed.
+              </p>
+              <ul>
+                <li>
+                  <ShieldCheck /> Secure agency access
+                </li>
+                <li>
+                  <LockKeyhole /> Protected request management
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
         <div className="login-form-wrap">
@@ -82,15 +85,6 @@ export default function AgencyLogin() {
             <button className="button button-primary login-button">
               Sign in <ArrowRight />
             </button>
-            <div className="access-credentials">
-              <span>SIGN-IN CREDENTIALS</span>
-              <p>
-                <b>Email</b> agency@easeph.org
-              </p>
-              <p>
-                <b>Password</b> easeph2026
-              </p>
-            </div>
           </form>
         </div>
       </main>

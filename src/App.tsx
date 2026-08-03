@@ -10,7 +10,7 @@ import AgencyDashboard from "./pages/AgencyDashboard";
 import RequestDetails from "./pages/RequestDetails";
 
 function Protected({ children }: { children: React.ReactNode }) {
-  return isAuthenticated() ? children : <Navigate to="/agency" replace />;
+  return isAuthenticated() ? children : <Navigate to="/agency/login" replace />;
 }
 
 export default function App() {
@@ -22,9 +22,10 @@ export default function App() {
       <Route path="/confirmation/:serial" element={<Confirmation />} />
       <Route path="/status" element={<StatusLookup />} />
       <Route path="/dashboard" element={<PublicDashboard />} />
-      <Route path="/agency" element={<AgencyLogin />} />
+      <Route path="/agency" element={<Navigate to="/agency/login" replace />} />
+      <Route path="/agency/login" element={<AgencyLogin />} />
       <Route
-        path="/agency/requests"
+        path="/agency/dashboard"
         element={
           <Protected>
             <AgencyDashboard />
@@ -32,12 +33,20 @@ export default function App() {
         }
       />
       <Route
-        path="/agency/requests/:serial"
+        path="/agency/dashboard/:serial"
         element={
           <Protected>
             <RequestDetails />
           </Protected>
         }
+      />
+      <Route
+        path="/agency/requests"
+        element={<Navigate to="/agency/dashboard" replace />}
+      />
+      <Route
+        path="/agency/requests/:serial"
+        element={<Navigate to="/agency/dashboard" replace />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
