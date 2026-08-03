@@ -1,7 +1,7 @@
 import { ArrowRight, Menu, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, setAuthenticated } from "./store";
+import { setAuthenticated } from "./store";
 import type { Status } from "./types";
 import easephLogo from "./assets/easeph-logo-transparent.png";
 
@@ -17,7 +17,12 @@ export function Logo({ inverse = false }: { inverse?: boolean }) {
 export function Header({ agency = false }: { agency?: boolean }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const authenticated = isAuthenticated();
+
+  const logOut = () => {
+    setAuthenticated(false);
+    navigate("/agency/login");
+  };
+
   return (
     <header className="site-header home-header">
       <div className="container header-inner">
@@ -30,41 +35,27 @@ export function Header({ agency = false }: { agency?: boolean }) {
           )
           : <Logo />}
         <nav className={open ? "nav-open" : ""}>
-          {agency && authenticated
+          {agency
             ? (
               <>
-                <NavLink to="/agency/dashboard">Dashboard</NavLink>
-                <button
-                  className="header-cta"
-                  onClick={() => {
-                    setAuthenticated(false);
-                    navigate("/agency/login");
-                  }}
-                >
+                <NavLink to="/agency/dashboard" onClick={() => setOpen(false)}>
+                  Dashboard
+                </NavLink>
+                <button className="header-cta" type="button" onClick={logOut}>
                   Log out <ArrowRight />
                 </button>
               </>
             )
-            : agency
-            ? (
-              <Link to="/" className="header-cta">
-                Public Site <ArrowRight />
-              </Link>
-            )
             : (
-              <>
-                <NavLink to="/" end>Home</NavLink>
-                <NavLink to="/dashboard">Stats</NavLink>
-                <Link to="/status" className="header-cta">
-                  Track a service <ArrowRight />
-                </Link>
-              </>
+              <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
             )}
         </nav>
         <button
           className="menu-button"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          type="button"
+          onClick={() => setOpen((current) => !current)}
+          aria-label="Toggle agency navigation"
+          aria-expanded={open}
         >
           {open ? <X /> : <Menu />}
         </button>
@@ -87,7 +78,6 @@ export function Footer() {
         <div>
           <strong>Public services</strong>
           <Link to="/status">Track a service</Link>
-          <Link to="/dashboard">Statistics</Link>
         </div>
         <div>
           <strong>For agencies</strong>
@@ -103,39 +93,40 @@ export function Footer() {
   );
 }
 
-export function Layout(
-  {
-    children,
-    agency = false,
-    agencyNav = false,
-    home = false,
-    hideHeader = false,
-    hideFooter = false,
-  }: {
-    children: ReactNode;
-    agency?: boolean;
-    agencyNav?: boolean;
-    home?: boolean;
-    hideHeader?: boolean;
-    hideFooter?: boolean;
-  },
-) {
+export function Layout({
+  children,
+  agency = false,
+  showHeader = false,
+  home = false,
+  hideHeader = false,
+  hideFooter = false,
+}: {
+  children: ReactNode;
+  agency?: boolean;
+  agencyNav?: boolean;
+  showHeader?: boolean;
+  home?: boolean;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+}) {
   return (
     <div className="site-layout">
-      {!hideHeader && <Header agency={agency || agencyNav} />}
+      {(agency || showHeader) && !hideHeader && <Header agency={agency} />}
       {children}
       {!home && !hideFooter && <Footer />}
     </div>
   );
 }
 
-export function PageIntro(
-  { title, text, children }: {
-    title: string;
-    text: string;
-    children?: ReactNode;
-  },
-) {
+export function PageIntro({
+  title,
+  text,
+  children,
+}: {
+  title: string;
+  text: string;
+  children?: ReactNode;
+}) {
   return (
     <section className="page-intro">
       <div className="container narrow">
@@ -160,13 +151,15 @@ export function EmptyState({ children }: { children: ReactNode }) {
   return <div className="empty-state">{children}</div>;
 }
 
-export function SectionHeading(
-  { title, text, action }: {
-    title: string;
-    text?: string;
-    action?: ReactNode;
-  },
-) {
+export function SectionHeading({
+  title,
+  text,
+  action,
+}: {
+  title: string;
+  text?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="section-heading">
       <div>
@@ -178,9 +171,13 @@ export function SectionHeading(
   );
 }
 
-export function ArrowLink(
-  { to, children }: { to: string; children: ReactNode },
-) {
+export function ArrowLink({
+  to,
+  children,
+}: {
+  to: string;
+  children: ReactNode;
+}) {
   return (
     <Link to={to} className="arrow-link">
       {children}

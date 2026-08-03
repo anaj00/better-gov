@@ -26,7 +26,7 @@ export default function StatusLookup() {
     setSearched(true);
   };
   return (
-    <Layout>
+    <Layout showHeader>
       <main>
         <PageIntro
           title="Track your service"

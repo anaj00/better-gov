@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Layout } from "../components";
+import { Layout, Logo } from "../components";
+import DrillDownSection from "../components/DrillDownSection";
 
 const stats = [
   {
@@ -51,16 +52,21 @@ const stats = [
   },
 ];
 
-function AnimatedValue(
-  { value, down = false }: { value: string; down?: boolean },
-) {
+function AnimatedValue({
+  value,
+  down = false,
+}: {
+  value: string;
+  down?: boolean;
+}) {
   const [display, setDisplay] = useState("0");
   const [changing, setChanging] = useState(false);
   const [previousDigit, setPreviousDigit] = useState("0");
   useEffect(() => {
     const match = value.match(/^([\d,.]+)(.*)$/);
     if (
-      !match || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      !match ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       const reducedFrame = requestAnimationFrame(() => setDisplay(value));
       return () => cancelAnimationFrame(reducedFrame);
@@ -68,18 +74,16 @@ function AnimatedValue(
     const target = Number(match[1].replaceAll(",", ""));
     const decimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
     const suffix = match[2];
-    const initial = target * (down ? 1.12 : .86);
+    const initial = target * (down ? 1.12 : 0.86);
     const start = performance.now();
     let frame = 0;
     let interval = 0;
     let highlightTimer = 0;
     const format = (number: number) =>
-      `${
-        number.toLocaleString("en-US", {
-          minimumFractionDigits: decimals,
-          maximumFractionDigits: decimals,
-        })
-      }${suffix}`;
+      `${number.toLocaleString("en-US", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}${suffix}`;
     const tick = (now: number) => {
       const progress = Math.min((now - start) / 1100, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
@@ -89,27 +93,26 @@ function AnimatedValue(
       } else {
         let current = target;
         let currentText = format(target);
-        const step = target >= 1000
-          ? Math.max(1, Math.round(target * .0002))
-          : .1;
+        const step =
+          target >= 1000 ? Math.max(1, Math.round(target * 0.0002)) : 0.1;
         interval = window.setInterval(() => {
-          const oldDigit = [...currentText].reverse().find((character) =>
-            /\d/.test(character)
-          ) || "0";
+          const oldDigit =
+            [...currentText]
+              .reverse()
+              .find((character) => /\d/.test(character)) || "0";
           current += down ? -step : step;
           if (suffix.includes("%")) {
             current = Math.min(current, 99.9);
           }
           if (down) {
-            current = Math.max(current, .1);
+            current = Math.max(current, 0.1);
           }
           currentText = format(current);
           setPreviousDigit(oldDigit);
           setDisplay(currentText);
           setChanging(true);
           clearTimeout(highlightTimer);
-          highlightTimer = window.setTimeout(() =>
-            setChanging(false), 650);
+          highlightTimer = window.setTimeout(() => setChanging(false), 650);
         }, 2500);
       }
     };
@@ -127,16 +130,16 @@ function AnimatedValue(
   return (
     <span className="stat-number" aria-live="polite">
       {[...display].map((character, index) =>
-        changing && index === finalDigitIndex
-          ? (
-            <span className="odometer-window" key={`${display}-${index}`}>
-              <span className="odometer-track">
-                <span>{previousDigit}</span>
-                <span>{character}</span>
-              </span>
+        changing && index === finalDigitIndex ? (
+          <span className="odometer-window" key={`${display}-${index}`}>
+            <span className="odometer-track">
+              <span>{previousDigit}</span>
+              <span>{character}</span>
             </span>
-          )
-          : <span key={`${index}-${character}`}>{character}</span>
+          </span>
+        ) : (
+          <span key={`${index}-${character}`}>{character}</span>
+        ),
       )}
     </span>
   );
@@ -149,12 +152,17 @@ export default function Home() {
         <section className="brand-hero">
           <div className="container brand-hero-grid">
             <div className="brand-hero-copy">
+              <Logo />
               <h1>
-                Government<br />processes,<br />made <em>easier.</em>
+                Government
+                <br />
+                processes,
+                <br />
+                made <em>easier.</em>
               </h1>
               <p>
-                Track government processes and stay informed
-                in<br className="desktop-break" /> just a few simple steps.
+                Track government processes and stay informed in
+                <br className="desktop-break" /> just a few simple steps.
               </p>
               <div className="brand-hero-actions">
                 <Link
@@ -165,7 +173,7 @@ export default function Home() {
                 </Link>
                 <Link
                   className="brand-button brand-button-secondary"
-                  to="/dashboard"
+                  to="/#requests-by-region"
                 >
                   View National Stats <BarChart3 />
                 </Link>
@@ -179,30 +187,31 @@ export default function Home() {
           aria-label="National process statistics"
         >
           <div className="brand-stats">
-            {stats.map((
-              { icon: Icon, value, label, change, note, tone, down },
-            ) => (
-              <article className={`brand-stat ${tone}`} key={label}>
-                <div className="stat-main">
-                  <span className="stat-icon">
-                    <Icon />
-                  </span>
-                  <div>
-                    <strong>
-                      <AnimatedValue value={value} down={down} />
-                    </strong>
-                    <p>{label}</p>
+            {stats.map(
+              ({ icon: Icon, value, label, change, note, tone, down }) => (
+                <article className={`brand-stat ${tone}`} key={label}>
+                  <div className="stat-main">
+                    <span className="stat-icon">
+                      <Icon />
+                    </span>
+                    <div>
+                      <strong>
+                        <AnimatedValue value={value} down={down} />
+                      </strong>
+                      <p>{label}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="stat-change">
-                  {down ? <ArrowDown /> : <ArrowUp />}
-                  <b>{change}</b>
-                  <small>{note}</small>
-                </div>
-              </article>
-            ))}
+                  <div className="stat-change">
+                    {down ? <ArrowDown /> : <ArrowUp />}
+                    <b>{change}</b>
+                    <small>{note}</small>
+                  </div>
+                </article>
+              ),
+            )}
           </div>
         </section>
+        <DrillDownSection />
       </main>
     </Layout>
   );
