@@ -29,8 +29,8 @@ export default function StatusLookup() {
     <Layout>
       <main>
         <PageIntro
-          title="Check your request status"
-          text="Enter your serial code to see the latest update from the responsible agency."
+          title="Track your service"
+          text="Enter the serial code on your receipt to see the latest update from the responsible agency."
         />
         <section className="lookup-section">
           <div className="container narrow">
@@ -46,7 +46,7 @@ export default function StatusLookup() {
                     required
                   />
                   <button className="button button-primary">
-                    Check status
+                    Track service
                   </button>
                 </div>
               </label>
@@ -55,7 +55,7 @@ export default function StatusLookup() {
               <div className="lookup-error">
                 <AlertCircle />
                 <div>
-                  <h3>Request not found</h3>
+                  <h3>Service record not found</h3>
                   <p>
                     Check the serial code and try again. Codes are not
                     case-sensitive.
@@ -73,11 +73,11 @@ export default function StatusLookup() {
                 </div>
                 <div className="status-timeline">
                   <div className="timeline-heading">
-                    <h3>Request progress</h3>
+                    <h3>Service progress</h3>
                     <span>
-                      {result.status === "Completed"
-                        ? "2 of 2 complete"
-                        : "1 of 2 complete"}
+                      {result.status === "New"
+                        ? "1 of 2 complete"
+                        : "2 of 2 closed"}
                     </span>
                   </div>
                   <div className="two-step">
@@ -88,26 +88,38 @@ export default function StatusLookup() {
                       <span>
                         <b>Submitted</b>
                         <small>
-                          Submitted {formatDate(result.dateSubmitted, "short")}
+                           Recorded {formatDate(result.dateSubmitted, "short")}
                         </small>
                       </span>
                     </div>
                     <em
-                      className={result.status === "Completed" ? "done" : ""}
+                      className={result.status !== "New" ? "done" : ""}
                     />
                     <div
                       className={result.status === "Completed"
                         ? "step-done"
+                        : result.status === "Rejected"
+                        ? "step-rejected"
                         : ""}
                     >
-                      <i>{result.status === "Completed" ? <Check /> : 2}</i>
+                      <i>
+                        {result.status === "Completed"
+                          ? <Check />
+                          : result.status === "Rejected"
+                          ? "×"
+                          : 2}
+                      </i>
                       <span>
-                        <b>Completed</b>
+                        <b>
+                          {result.status === "Rejected"
+                            ? "Rejected"
+                            : "Completed"}
+                        </b>
                         <small>
-                          {result.approvalDate
-                            ? `Approved ${
-                              formatDate(result.approvalDate, "short")
-                            }`
+                           {result.status === "Rejected"
+                            ? "Service was not approved"
+                            : result.status === "Completed"
+                            ? "Request approved"
                             : "Awaiting agency action"}
                         </small>
                       </span>
@@ -116,10 +128,14 @@ export default function StatusLookup() {
                 </div>
                 <details className="request-details-collapse">
                   <summary>
-                    Request details
+                    Service details
                     <ChevronDown />
                   </summary>
                   <div className="public-details">
+                    <div>
+                      <span>Service</span>
+                      <b>{result.processName}</b>
+                    </div>
                     <div>
                       <span>Responsible agency</span>
                       <b>{result.agency}</b>
@@ -132,12 +148,6 @@ export default function StatusLookup() {
                       <span>Last updated</span>
                       <b>{formatDate(result.lastUpdated)}</b>
                     </div>
-                    {result.approvalDate && (
-                      <div>
-                        <span>Approval date</span>
-                        <b>{formatDate(result.approvalDate)}</b>
-                      </div>
-                    )}
                   </div>
                 </details>
               </div>

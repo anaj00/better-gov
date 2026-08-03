@@ -55,9 +55,8 @@ export function Header({ agency = false }: { agency?: boolean }) {
               <>
                 <NavLink to="/" end>Home</NavLink>
                 <NavLink to="/dashboard">Stats</NavLink>
-                <NavLink to="/status">Track</NavLink>
-                <Link to="/request" className="header-cta">
-                  Request a service <ArrowRight />
+                <Link to="/status" className="header-cta">
+                  Track a service <ArrowRight />
                 </Link>
               </>
             )}
@@ -82,13 +81,12 @@ export function Footer() {
           <Logo inverse />
           <p>
             A modern platform making government business processes easier to
-            request and track.
+            understand and track.
           </p>
         </div>
         <div>
           <strong>Public services</strong>
-          <Link to="/request">Start a request</Link>
-          <Link to="/status">Check status</Link>
+          <Link to="/status">Track a service</Link>
           <Link to="/dashboard">Statistics</Link>
         </div>
         <div>

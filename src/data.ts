@@ -8,20 +8,95 @@ import type {
   TimeWindow,
 } from "./types";
 
+export type AgencyService = {
+  id: ProcessId;
+  name: string;
+  agency: string;
+  estimate: string;
+  description: string;
+};
+
+export const birServices: AgencyService[] = [
+  {
+    id: "bir-registration",
+    name: "Business Tax Registration and TIN",
+    agency: "Bureau of Internal Revenue",
+    estimate: "5-10 business days",
+    description: "Register a business taxpayer and secure a Tax Identification Number.",
+  },
+  {
+    id: "bir-certificate-registration",
+    name: "Certificate of Registration",
+    agency: "Bureau of Internal Revenue",
+    estimate: "3-5 business days",
+    description: "Process the issuance of a BIR Certificate of Registration.",
+  },
+  {
+    id: "bir-authority-print",
+    name: "Authority to Print Invoices",
+    agency: "Bureau of Internal Revenue",
+    estimate: "3-5 business days",
+    description: "Request authority to print official invoices and receipts.",
+  },
+  {
+    id: "bir-books-accounts",
+    name: "Registration of Books of Accounts",
+    agency: "Bureau of Internal Revenue",
+    estimate: "1-3 business days",
+    description: "Register manual, loose-leaf, or computerized accounting books.",
+  },
+  {
+    id: "bir-branch-registration",
+    name: "Branch or Facility Registration",
+    agency: "Bureau of Internal Revenue",
+    estimate: "5-10 business days",
+    description: "Register an additional branch, warehouse, or business facility.",
+  },
+  {
+    id: "bir-registration-update",
+    name: "Update of Registration Information",
+    agency: "Bureau of Internal Revenue",
+    estimate: "3-5 business days",
+    description: "Update a taxpayer's registered business information or details.",
+  },
+  {
+    id: "bir-tax-clearance",
+    name: "Tax Clearance Application",
+    agency: "Bureau of Internal Revenue",
+    estimate: "7-15 business days",
+    description: "Apply for certification that tax obligations are in good standing.",
+  },
+  {
+    id: "bir-business-closure",
+    name: "Business Closure or Registration Cancellation",
+    agency: "Bureau of Internal Revenue",
+    estimate: "10-20 business days",
+    description: "Process business closure and cancellation of BIR registration.",
+  },
+  {
+    id: "bir-accounting-system",
+    name: "Computerized Accounting System Registration",
+    agency: "Bureau of Internal Revenue",
+    estimate: "10-15 business days",
+    description: "Register a computerized accounting or bookkeeping system.",
+  },
+];
+
 export const activeProcesses: Record<
   ProcessId,
   { name: string; agency: string; estimate: string }
 > = {
-  "bir-registration": {
-    name: "BIR Registration",
-    agency: "Bureau of Internal Revenue",
-    estimate: "5-10 business days",
-  },
   "business-permit": {
     name: "New Business Permit",
     agency: "Quezon City Business Permits and Licensing Department",
     estimate: "3-7 business days",
   },
+  ...Object.fromEntries(
+    birServices.map(({ id, name, agency, estimate }) => [
+      id,
+      { name, agency, estimate },
+    ]),
+  ) as Record<Exclude<ProcessId, "business-permit">, { name: string; agency: string; estimate: string }>,
 };
 
 const catalogGroups: Array<[string, string[], "national" | "local"]> = [
@@ -245,14 +320,11 @@ export const seedRequests: RequestRecord[] = [
       address: "123 Commonwealth Avenue, Greater Lagro, Quezon City",
       dateSubmitted: submitted,
       status: status as "New" | "Completed",
-      approvalDate:
-        status === "Completed"
-          ? isoDaysAgo((days as number) - 3).slice(0, 10)
-          : "",
       requesterNote: requesterNote as string,
       internalNotes: "Request imported into the service workspace.",
-      lastUpdated:
-        status === "Completed" ? isoDaysAgo((days as number) - 3) : submitted,
+      lastUpdated: status === "Completed"
+        ? isoDaysAgo((days as number) - 3)
+        : submitted,
       businessType: "Sole proprietorship",
     };
   },
@@ -270,12 +342,11 @@ export function statisticsFor(geography: Geography, processIds: string[]) {
   return processCatalog
     .filter((p) => processIds.length === 0 || processIds.includes(p.id))
     .map((process, index) => {
-      const base =
-        index < 12
-          ? 42000 - index * 1700
-          : index < 35
-            ? 14000 - (index - 12) * 370
-            : 2600 - (index - 35) * 95;
+      const base = index < 12
+        ? 42000 - index * 1700
+        : index < 35
+        ? 14000 - (index - 12) * 370
+        : 2600 - (index - 35) * 95;
       const total = Math.max(20, Math.round(base * scale));
       const completed = Math.round(total * (0.72 + (index % 6) * 0.03));
       const monthly = ["Mar", "Apr", "May", "Jun", "Jul", "Aug"].map(
@@ -323,8 +394,23 @@ export const regionNames = [
 
 // Approximate share of request volume distributed to each region (sums to ~1)
 const regionFactors = [
-  0.055, 0.03, 0.11, 0.13, 0.05, 0.07, 0.075, 0.04, 0.035, 0.05, 0.065, 0.045,
-  0.13, 0.028, 0.028, 0.025, 0.024,
+  0.055,
+  0.03,
+  0.11,
+  0.13,
+  0.05,
+  0.07,
+  0.075,
+  0.04,
+  0.035,
+  0.05,
+  0.065,
+  0.045,
+  0.13,
+  0.028,
+  0.028,
+  0.025,
+  0.024,
 ];
 
 export function statisticsByRegion(processIds: string[]): RegionStat[] {
@@ -508,8 +594,8 @@ export function medianDaysFor(
 ): number {
   const rows = statisticsFor("Philippines", processIds);
   const total = rows.reduce((sum, row) => sum + row.total, 0) || 1;
-  let median =
-    rows.reduce((sum, row) => sum + row.avgDays * row.total, 0) / total;
+  let median = rows.reduce((sum, row) => sum + row.avgDays * row.total, 0) /
+    total;
   if (location.region) {
     const index = regionNames.indexOf(location.region);
     median *= 0.9 + ((index * 7) % 19) / 100;
@@ -517,7 +603,9 @@ export function medianDaysFor(
   if (location.city) median *= 0.88 + (hash(location.city) % 18) / 100;
   if (location.barangay) median *= 0.85 + (hash(location.barangay) % 22) / 100;
   if (window === "30d") {
-    const key = `${location.region ?? "ph"}|${location.city ?? ""}|${location.barangay ?? ""}`;
+    const key = `${location.region ?? "ph"}|${location.city ?? ""}|${
+      location.barangay ?? ""
+    }`;
     median *= 0.86 + (hash(key + "w") % 14) / 100;
   }
   return Math.round(median * 10) / 10;
@@ -591,20 +679,24 @@ export function drillStats(
       };
     }
   }
-  if (location.city)
+  if (location.city) {
     scope = downScale(
       scope,
       0.25 + (hash(location.city) % 10) / 100,
       location.city,
     );
-  if (location.barangay)
+  }
+  if (location.barangay) {
     scope = downScale(
       scope,
       0.2 + (hash(location.barangay) % 10) / 100,
       location.barangay,
     );
+  }
   if (window === "30d") {
-    const key = `${location.region ?? "ph"}|${location.city ?? ""}|${location.barangay ?? ""}`;
+    const key = `${location.region ?? "ph"}|${location.city ?? ""}|${
+      location.barangay ?? ""
+    }`;
     scope = downScale(scope, 0.06 + (hash(key + "r") % 7) / 100, key);
   }
   const newRequests = scope.total - scope.completed;

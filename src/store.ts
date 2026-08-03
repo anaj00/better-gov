@@ -43,7 +43,17 @@ export const setAuthenticated = (value: boolean) =>
   localStorage.setItem(AUTH_KEY, String(value));
 
 export function generateSerial() {
-  return "EASE-2026-7K9M2Q";
+  const existing = new Set(getRequests().map((request) => request.serialCode));
+  let serial = "";
+  do {
+    const code = crypto.getRandomValues(new Uint32Array(1))[0]
+      .toString(36)
+      .toUpperCase()
+      .padStart(7, "0")
+      .slice(0, 7);
+    serial = `EASE-${new Date().getFullYear()}-${code}`;
+  } while (existing.has(serial));
+  return serial;
 }
 
 export const formatDate = (date: string, style: "short" | "long" = "long") =>

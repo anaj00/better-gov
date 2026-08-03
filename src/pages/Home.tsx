@@ -153,15 +153,15 @@ export default function Home() {
                 Government<br />processes,<br />made <em>easier.</em>
               </h1>
               <p>
-                Request, track, and complete processes
+                Track government processes and stay informed
                 in<br className="desktop-break" /> just a few simple steps.
               </p>
               <div className="brand-hero-actions">
                 <Link
                   className="brand-button brand-button-primary"
-                  to="/request"
+                  to="/status"
                 >
-                  Request a Service <ArrowRight />
+                  Track a Service <ArrowRight />
                 </Link>
                 <Link
                   className="brand-button brand-button-secondary"
