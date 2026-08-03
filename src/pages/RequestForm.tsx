@@ -132,7 +132,6 @@ export default function RequestForm() {
             <ArrowLeft /> {step > 0 ? "Previous step" : "Back to home"}
           </Link>
           <div className="form-heading">
-            <span className="eyebrow">Government service request</span>
             <h1>{process ? process.name : "Choose a process"}</h1>
             <p>
               {process

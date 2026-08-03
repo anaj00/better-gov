@@ -6,7 +6,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { Layout, StatusBadge } from "../components";
 import { activeProcesses } from "../data";
 import { formatDate, getRequests, updateRequest } from "../store";
-import easephLogo from "../assets/easeph-logo.png";
+import easephLogo from "../assets/easeph-logo-transparent.png";
 
 const imageDataUrl = async (url: string) => {
   const blob = await fetch(url).then((response) => response.blob());
@@ -15,6 +15,27 @@ const imageDataUrl = async (url: string) => {
     reader.onload = () => resolve(String(reader.result));
     reader.onerror = reject;
     reader.readAsDataURL(blob);
+  });
+};
+
+const whiteImageDataUrl = async (url: string) => {
+  const source = await imageDataUrl(url);
+  return await new Promise<string>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d");
+      if (!context) return reject(new Error("Unable to prepare logo"));
+      context.drawImage(image, 0, 0);
+      context.globalCompositeOperation = "source-in";
+      context.fillStyle = "#FFFFFF";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    image.onerror = reject;
+    image.src = source;
   });
 };
 
@@ -36,7 +57,7 @@ export default function Confirmation() {
       encodeURIComponent(request.serialCode)
     }`;
     const [logo, qrCode] = await Promise.all([
-      imageDataUrl(easephLogo),
+      whiteImageDataUrl(easephLogo),
       QRCode.toDataURL(statusUrl, {
         width: 480,
         margin: 1,
@@ -48,9 +69,7 @@ export default function Confirmation() {
     pdf.rect(0, 0, 210, 43, "F");
     pdf.setFillColor(214, 31, 58);
     pdf.rect(0, 43, 210, 2.5, "F");
-    pdf.setFillColor(255, 255, 255);
-    pdf.roundedRect(15, 8, 47, 27, 2, 2, "F");
-    pdf.addImage(logo, "PNG", 17, 10, 43, 22);
+    pdf.addImage(logo, "PNG", 16, 9, 45, 23);
     pdf.setTextColor(255, 255, 255);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(15);
@@ -73,7 +92,7 @@ export default function Confirmation() {
     );
 
     pdf.setFillColor(246, 248, 252);
-    pdf.roundedRect(15, 77, 180, 40, 3, 3, "F");
+    pdf.roundedRect(15, 77, 180, 54, 3, 3, "F");
     pdf.setFont("helvetica", "bold");
     pdf.setTextColor(11, 46, 138);
     pdf.setFontSize(8);
@@ -85,7 +104,7 @@ export default function Confirmation() {
     pdf.setTextColor(88, 105, 148);
     pdf.text(`Submitted ${formatDate(request.dateSubmitted)}`, 23, 109);
 
-    pdf.addImage(qrCode, "PNG", 151, 81, 31, 31);
+    pdf.addImage(qrCode, "PNG", 143, 81, 45, 45);
     const entries = [
       ["Process", request.processName],
       ["Business", request.businessName],
@@ -94,7 +113,7 @@ export default function Confirmation() {
       ["Current status", request.status],
       ["Estimated time", activeProcesses[request.processId].estimate],
     ];
-    let y = 133;
+    let y = 147;
     entries.forEach(([label, value]) => {
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(8);
@@ -125,7 +144,6 @@ export default function Confirmation() {
           <div className="success-icon">
             <Check />
           </div>
-          <span className="eyebrow">Request submitted</span>
           <h1>Your request is on its way.</h1>
           <p>Keep your serial code safe. You will use it to track progress.</p>
           <div className="serial-card">

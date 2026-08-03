@@ -29,7 +29,6 @@ export default function StatusLookup() {
     <Layout>
       <main>
         <PageIntro
-          eyebrow="Request tracking"
           title="Check your request status"
           text="Enter your serial code to see the latest update from the responsible agency."
         />
@@ -51,15 +50,6 @@ export default function StatusLookup() {
                   </button>
                 </div>
               </label>
-              <small>
-                Try this reference code{" "}
-                <button
-                  type="button"
-                  onClick={() => setSerial("EASE-2026-7K9M2Q")}
-                >
-                  EASE-2026-7K9M2Q
-                </button>
-              </small>
             </form>
             {searched && !result && (
               <div className="lookup-error">
@@ -77,7 +67,6 @@ export default function StatusLookup() {
               <div className="status-result">
                 <div className="status-result-head">
                   <div>
-                    <span className="eyebrow">Request found</span>
                     <h2>{result.processName}</h2>
                     <p>{result.serialCode}</p>
                   </div>

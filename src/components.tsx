@@ -3,7 +3,7 @@ import { type ReactNode, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { isAuthenticated, resetRequests, setAuthenticated } from "./store";
 import type { Status } from "./types";
-import easephLogo from "./assets/easeph-logo.png";
+import easephLogo from "./assets/easeph-logo-transparent.png";
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   return (
@@ -80,12 +80,12 @@ export function Layout(
   },
 ) {
   return (
-    <>
+    <div className="site-layout">
       <Header />
       {agency && <AgencyBar />}
       {children}
       {!home && !hideFooter && <Footer />}
-    </>
+    </div>
   );
 }
 
@@ -122,8 +122,7 @@ function AgencyBar() {
 }
 
 export function PageIntro(
-  { eyebrow, title, text, children }: {
-    eyebrow: string;
+  { title, text, children }: {
     title: string;
     text: string;
     children?: ReactNode;
@@ -132,7 +131,6 @@ export function PageIntro(
   return (
     <section className="page-intro">
       <div className="container narrow">
-        <span className="eyebrow">{eyebrow}</span>
         <h1>{title}</h1>
         <p>{text}</p>
         {children}
@@ -155,8 +153,7 @@ export function EmptyState({ children }: { children: ReactNode }) {
 }
 
 export function SectionHeading(
-  { eyebrow, title, text, action }: {
-    eyebrow?: string;
+  { title, text, action }: {
     title: string;
     text?: string;
     action?: ReactNode;
@@ -165,7 +162,6 @@ export function SectionHeading(
   return (
     <div className="section-heading">
       <div>
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h2>{title}</h2>
         {text && <p>{text}</p>}
       </div>

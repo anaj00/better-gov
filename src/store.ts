@@ -43,12 +43,7 @@ export const setAuthenticated = (value: boolean) =>
   localStorage.setItem(AUTH_KEY, String(value));
 
 export function generateSerial() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const suffix = Array.from(
-    { length: 6 },
-    () => chars[Math.floor(Math.random() * chars.length)],
-  ).join("");
-  return `EASE-${new Date().getFullYear()}-${suffix}`;
+  return "EASE-2026-7K9M2Q";
 }
 
 export const formatDate = (date: string, style: "short" | "long" = "long") =>

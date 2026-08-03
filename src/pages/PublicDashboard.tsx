@@ -68,7 +68,6 @@ export default function PublicDashboard() {
     <Layout>
       <main className="dashboard-page">
         <PageIntro
-          eyebrow="Public service data"
           title="How government services are performing"
           text="Explore service data across 50 business-facing processes and four geographic levels."
         />

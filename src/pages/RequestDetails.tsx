@@ -43,7 +43,6 @@ export default function RequestDetails() {
           </Link>
           <div className="detail-heading">
             <div>
-              <span className="eyebrow">Request details</span>
               <h1>{original.serialCode}</h1>
               <p>
                 Submitted {formatDate(original.dateSubmitted)} · Last updated

@@ -32,7 +32,6 @@ export default function AgencyDashboard() {
         <div className="container">
           <div className="agency-heading">
             <div>
-              <span className="eyebrow">Agency workspace</span>
               <h1>Requests</h1>
               <p>Review and update requests submitted through EasePH.</p>
             </div>

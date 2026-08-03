@@ -31,7 +31,6 @@ export default function AgencyLogin() {
       <main className="login-page">
         <div className="login-side">
           <div>
-            <span className="eyebrow light">Agency workspace</span>
             <h1>Manage requests with clarity.</h1>
             <p>
               Review submitted business requests, record approvals, and keep the
