@@ -1,8 +1,8 @@
-# EasePH Agency Receipt Flow Implementation Plan
+# GovTrack Agency Receipt Flow Implementation Plan
 
 ## Goal
 
-Change EasePH so the public can only track government services, while agency staff generate service receipts from the agency dashboard.
+Change GovTrack so the public can only track government services, while agency staff generate service receipts from the agency dashboard.
 
 The initial agency catalog will contain all nine Bureau of Internal Revenue (BIR) services already represented in the application. This remains a frontend-only prototype using browser local storage; email notification enrollment will be simulated and will not send real email.
 
@@ -91,7 +91,7 @@ The initial agency catalog will contain all nine Bureau of Internal Revenue (BIR
 
 - Remove `RequestForm.tsx`, `Confirmation.tsx`, and `RequestDetails.tsx` after reusable receipt behavior has been relocated.
 - Remove obsolete routes, redirects, imports, links, and request-form styles.
-- Update wording such as "submitted through EasePH" and "request a service" throughout the public and agency interfaces.
+- Update wording such as "submitted through GovTrack" and "request a service" throughout the public and agency interfaces.
 
 ## 9. Verification
 

@@ -42,7 +42,7 @@ export default function StatusLookup() {
                   <input
                     value={serial}
                     onChange={(e) => setSerial(e.target.value)}
-                    placeholder="EASE-2026-XXXXXX"
+                    placeholder="GOVTRACK-2026-XXXXXX"
                     required
                   />
                   <button className="button button-primary">
@@ -88,7 +88,7 @@ export default function StatusLookup() {
                       <span>
                         <b>Submitted</b>
                         <small>
-                           Recorded {formatDate(result.dateSubmitted, "short")}
+                          Recorded {formatDate(result.dateSubmitted, "short")}
                         </small>
                       </span>
                     </div>
@@ -116,7 +116,7 @@ export default function StatusLookup() {
                             : "Completed"}
                         </b>
                         <small>
-                           {result.status === "Rejected"
+                          {result.status === "Rejected"
                             ? "Service was not approved"
                             : result.status === "Completed"
                             ? "Request approved"

@@ -1,15 +1,15 @@
-# EasePH Branding Guide
+# GovTrack Branding Guide
 ## For the Demo Website and Product UI
 
 **Document type:** Branding and visual identity guide  
-**Purpose:** Define the branding direction for the EasePH demo website and supporting UI screens  
+**Purpose:** Define the branding direction for the GovTrack website and supporting UI screens  
 **Status:** Draft for implementation in Codex  
 
 ---
 
 ## 1. Brand Overview
 
-EasePH is a government process platform designed to make business-related government processes feel easier, clearer, and more accessible.
+GovTrack is a government process platform designed to make business-related government processes feel easier, clearer, and more accessible.
 
 The brand should feel:
 
@@ -40,7 +40,7 @@ The visual identity should communicate:
 
 ### Core Idea
 
-EasePH helps businesses request, track, and complete government processes more easily.
+GovTrack helps businesses request, track, and complete government processes more easily.
 
 ### Brand Promise
 
@@ -48,7 +48,7 @@ A simpler, clearer, and more transparent way to navigate government requirements
 
 ### Brand Personality
 
-EasePH should feel like:
+GovTrack should feel like:
 
 - A modern civic platform
 - A helpful guide
@@ -76,7 +76,7 @@ Avoid language that is:
 
 ## 3. Logo
 
-The provided EasePH logo should be treated as the main brand mark.
+The provided GovTrack logo should be treated as the main brand mark.
 
 ### Logo Direction
 
@@ -86,11 +86,11 @@ The logo uses:
 - Red as the accent color
 - A bold, high-energy visual style
 
-This gives EasePH a more energetic and memorable identity compared with the earlier softer blue-green version.
+This gives GovTrack a more energetic and memorable identity compared with the earlier softer blue-green version.
 
 ### Logo Usage Guidance
 
-Use the provided EasePH logo:
+Use the provided GovTrack logo:
 
 - In the website header
 - On authentication pages
@@ -313,7 +313,7 @@ The approved direction is:
 
 The header should include:
 
-- EasePH logo on the left
+- GovTrack logo on the left
 - Navigation items:
   - Home
   - Processes
@@ -581,7 +581,7 @@ Avoid adding:
 
 When implementing the homepage and UI, Codex should follow these branding rules:
 
-1. Use the uploaded EasePH logo.
+1. Use the uploaded GovTrack logo.
 2. Use a blue-and-red visual system.
 3. Keep the homepage minimal and hero-led.
 4. Use only two hero CTAs:
@@ -624,7 +624,7 @@ Suggested:
 
 ## 15. Final Brand Summary
 
-EasePH should feel like:
+GovTrack should feel like:
 
 > **A modern Philippine government process platform that is cleaner, clearer, and easier to use.**
 

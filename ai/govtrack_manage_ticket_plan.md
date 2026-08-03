@@ -1,4 +1,4 @@
-# EasePH Manage Ticket Implementation Plan
+# GovTrack Manage Ticket Implementation Plan
 
 ## Goal
 
@@ -14,7 +14,7 @@ This remains a frontend-only prototype using browser local storage. The interfac
 
 ## 2. Build the Ticket Search Modal
 
-- Add a tracking-number input using the receipt format, such as `EASE-2026-XXXXXXX`.
+- Add a tracking-number input using the receipt format, such as `GOVTRACK-2026-XXXXXXX`.
 - Add a **Find Ticket** button.
 - Trim whitespace and match tracking numbers case-insensitively.
 - Show an inline error when no matching ticket exists.

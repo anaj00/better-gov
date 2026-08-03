@@ -101,7 +101,8 @@ export default function AgencyDashboard() {
       status,
       internalNotes: internalNotes.trim() || undefined,
     });
-    const message = `Ticket updated to ${status}. The requester will be notified via email.`;
+    const message =
+      `Ticket updated to ${status}. The requester will be notified via email.`;
     closeModal();
     setToast(message);
   };
@@ -189,117 +190,121 @@ export default function AgencyDashboard() {
               </button>
             </header>
 
-            {!ticket ? (
-              <form className="ticket-lookup-form" onSubmit={findTicket}>
-                <label htmlFor="tracking-number">Tracking number</label>
-                <p>Enter the serial code printed on the service receipt.</p>
-                <div className="ticket-search-field">
-                  <Search />
-                  <input
-                    ref={searchInputRef}
-                    id="tracking-number"
-                    value={trackingNumber}
-                    onChange={(event) => {
-                      setTrackingNumber(event.target.value);
-                      setLookupError("");
-                    }}
-                    placeholder="EASE-2026-XXXXXXX"
-                    autoComplete="off"
-                    required
-                  />
-                </div>
-                {lookupError && (
-                  <p className="ticket-lookup-error">{lookupError}</p>
-                )}
-                <button
-                  className="button button-primary ticket-modal-submit"
-                  type="submit"
-                >
-                  Find Ticket
-                </button>
-              </form>
-            ) : (
-              <div className="ticket-update-form">
-                <div className="ticket-found">
-                  <div className="ticket-found-head">
-                    <div>
-                      <span>Tracking number</span>
-                      <strong>{ticket.serialCode}</strong>
-                    </div>
+            {!ticket
+              ? (
+                <form className="ticket-lookup-form" onSubmit={findTicket}>
+                  <label htmlFor="tracking-number">Tracking number</label>
+                  <p>Enter the serial code printed on the service receipt.</p>
+                  <div className="ticket-search-field">
+                    <Search />
+                    <input
+                      ref={searchInputRef}
+                      id="tracking-number"
+                      value={trackingNumber}
+                      onChange={(event) => {
+                        setTrackingNumber(event.target.value);
+                        setLookupError("");
+                      }}
+                      placeholder="GOVTRACK-2026-XXXXXXX"
+                      autoComplete="off"
+                      required
+                    />
                   </div>
-                  <dl>
-                    <div>
-                      <dt>Service</dt>
-                      <dd>{ticket.processName}</dd>
-                    </div>
-                    <div>
-                      <dt>Date generated</dt>
-                      <dd>{formatDate(ticket.dateSubmitted)}</dd>
-                    </div>
-                    {ticket.email && (
+                  {lookupError && (
+                    <p className="ticket-lookup-error">{lookupError}</p>
+                  )}
+                  <button
+                    className="button button-primary ticket-modal-submit"
+                    type="submit"
+                  >
+                    Find Ticket
+                  </button>
+                </form>
+              )
+              : (
+                <div className="ticket-update-form">
+                  <div className="ticket-found">
+                    <div className="ticket-found-head">
                       <div>
-                        <dt>Notification email</dt>
-                        <dd>
-                          <Mail /> {ticket.email}
-                        </dd>
+                        <span>Tracking number</span>
+                        <strong>{ticket.serialCode}</strong>
                       </div>
-                    )}
-                  </dl>
-                </div>
-                <div className="ticket-internal-notes">
-                  <div className="ticket-notes-heading">
-                    <label htmlFor="ticket-internal-notes">Internal notes</label>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Service</dt>
+                        <dd>{ticket.processName}</dd>
+                      </div>
+                      <div>
+                        <dt>Date generated</dt>
+                        <dd>{formatDate(ticket.dateSubmitted)}</dd>
+                      </div>
+                      {ticket.email && (
+                        <div>
+                          <dt>Notification email</dt>
+                          <dd>
+                            <Mail /> {ticket.email}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                  <div className="ticket-internal-notes">
+                    <div className="ticket-notes-heading">
+                      <label htmlFor="ticket-internal-notes">
+                        Internal notes
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (editingNotes) saveInternalNotes();
+                          else setEditingNotes(true);
+                        }}
+                        aria-label={editingNotes
+                          ? "Save internal note"
+                          : "Edit internal note"}
+                        title={editingNotes ? "Save note" : "Edit note"}
+                      >
+                        {editingNotes ? <Save /> : <Pencil />}
+                      </button>
+                    </div>
+                    <textarea
+                      id="ticket-internal-notes"
+                      value={internalNotes}
+                      onChange={(event) => setInternalNotes(event.target.value)}
+                      placeholder="Add context or handling instructions..."
+                      rows={4}
+                      readOnly={!editingNotes}
+                      className={editingNotes ? "is-editing" : ""}
+                    />
+                  </div>
+                  <div className="ticket-modal-actions">
                     <button
                       type="button"
-                      onClick={() => {
-                        if (editingNotes) saveInternalNotes();
-                        else setEditingNotes(true);
-                      }}
-                      aria-label={editingNotes
-                        ? "Save internal note"
-                        : "Edit internal note"}
-                      title={editingNotes ? "Save note" : "Edit note"}
+                      className="ticket-action-button cancel"
+                      onClick={closeModal}
                     >
-                      {editingNotes ? <Save /> : <Pencil />}
+                      <X /> Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="ticket-action-button rejected"
+                      disabled={ticket.status === "Rejected"}
+                      onClick={() => submitStatus("Rejected")}
+                    >
+                      <X /> Rejected
+                    </button>
+                    <button
+                      type="button"
+                      className="ticket-action-button completed"
+                      disabled={ticket.status === "Completed"}
+                      onClick={() => submitStatus("Completed")}
+                    >
+                      <CheckCircle2 /> Completed
                     </button>
                   </div>
-                  <textarea
-                    id="ticket-internal-notes"
-                    value={internalNotes}
-                    onChange={(event) => setInternalNotes(event.target.value)}
-                    placeholder="Add context or handling instructions..."
-                    rows={4}
-                    readOnly={!editingNotes}
-                    className={editingNotes ? "is-editing" : ""}
-                  />
                 </div>
-                <div className="ticket-modal-actions">
-                  <button
-                    type="button"
-                    className="ticket-action-button cancel"
-                    onClick={closeModal}
-                  >
-                    <X /> Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="ticket-action-button rejected"
-                    disabled={ticket.status === "Rejected"}
-                    onClick={() => submitStatus("Rejected")}
-                  >
-                    <X /> Rejected
-                  </button>
-                  <button
-                    type="button"
-                    className="ticket-action-button completed"
-                    disabled={ticket.status === "Completed"}
-                    onClick={() => submitStatus("Completed")}
-                  >
-                    <CheckCircle2 /> Completed
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
           </section>
         </div>
       )}

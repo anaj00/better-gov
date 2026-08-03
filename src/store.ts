@@ -1,8 +1,8 @@
 import { seedRequests } from "./data";
 import type { RequestRecord } from "./types";
 
-const REQUESTS_KEY = "easeph-requests-v1";
-const AUTH_KEY = "easeph-agency-auth";
+const REQUESTS_KEY = "govtrack-requests-v1";
+const AUTH_KEY = "govtrack-agency-auth";
 
 export function getRequests(): RequestRecord[] {
   const stored = localStorage.getItem(REQUESTS_KEY);
@@ -17,7 +17,7 @@ export function getRequests(): RequestRecord[] {
 
 export function saveRequests(requests: RequestRecord[]) {
   localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
-  window.dispatchEvent(new Event("easeph-requests-changed"));
+  window.dispatchEvent(new Event("govtrack-requests-changed"));
 }
 
 export function addRequest(request: RequestRecord) {
@@ -51,7 +51,7 @@ export function generateSerial() {
       .toUpperCase()
       .padStart(7, "0")
       .slice(0, 7);
-    serial = `EASE-${new Date().getFullYear()}-${code}`;
+    serial = `GOVTRACK-${new Date().getFullYear()}-${code}`;
   } while (existing.has(serial));
   return serial;
 }

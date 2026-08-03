@@ -22,7 +22,8 @@ export const birServices: AgencyService[] = [
     name: "Business Tax Registration and TIN",
     agency: "Bureau of Internal Revenue",
     estimate: "5-10 business days",
-    description: "Register a business taxpayer and secure a Tax Identification Number.",
+    description:
+      "Register a business taxpayer and secure a Tax Identification Number.",
   },
   {
     id: "bir-certificate-registration",
@@ -43,35 +44,40 @@ export const birServices: AgencyService[] = [
     name: "Registration of Books of Accounts",
     agency: "Bureau of Internal Revenue",
     estimate: "1-3 business days",
-    description: "Register manual, loose-leaf, or computerized accounting books.",
+    description:
+      "Register manual, loose-leaf, or computerized accounting books.",
   },
   {
     id: "bir-branch-registration",
     name: "Branch or Facility Registration",
     agency: "Bureau of Internal Revenue",
     estimate: "5-10 business days",
-    description: "Register an additional branch, warehouse, or business facility.",
+    description:
+      "Register an additional branch, warehouse, or business facility.",
   },
   {
     id: "bir-registration-update",
     name: "Update of Registration Information",
     agency: "Bureau of Internal Revenue",
     estimate: "3-5 business days",
-    description: "Update a taxpayer's registered business information or details.",
+    description:
+      "Update a taxpayer's registered business information or details.",
   },
   {
     id: "bir-tax-clearance",
     name: "Tax Clearance Application",
     agency: "Bureau of Internal Revenue",
     estimate: "7-15 business days",
-    description: "Apply for certification that tax obligations are in good standing.",
+    description:
+      "Apply for certification that tax obligations are in good standing.",
   },
   {
     id: "bir-business-closure",
     name: "Business Closure or Registration Cancellation",
     agency: "Bureau of Internal Revenue",
     estimate: "10-20 business days",
-    description: "Process business closure and cancellation of BIR registration.",
+    description:
+      "Process business closure and cancellation of BIR registration.",
   },
   {
     id: "bir-accounting-system",
@@ -96,7 +102,10 @@ export const activeProcesses: Record<
       id,
       { name, agency, estimate },
     ]),
-  ) as Record<Exclude<ProcessId, "business-permit">, { name: string; agency: string; estimate: string }>,
+  ) as Record<
+    Exclude<ProcessId, "business-permit">,
+    { name: string; agency: string; estimate: string }
+  >,
 };
 
 const catalogGroups: Array<[string, string[], "national" | "local"]> = [
@@ -232,7 +241,7 @@ const isoDaysAgo = (days: number) =>
 
 export const seedRequests: RequestRecord[] = [
   [
-    "EASE-2026-7K9M2Q",
+    "GOVTRACK-2026-7K9M2Q",
     "bir-registration",
     "Luntian Foods Trading",
     "Maria Santos",
@@ -241,7 +250,7 @@ export const seedRequests: RequestRecord[] = [
     "Documents received and queued for initial review.",
   ],
   [
-    "EASE-2026-4T8R1P",
+    "GOVTRACK-2026-4T8R1P",
     "business-permit",
     "Northstar Print Studio",
     "Paolo Reyes",
@@ -250,7 +259,7 @@ export const seedRequests: RequestRecord[] = [
     "Your permit has been approved and is ready for release.",
   ],
   [
-    "EASE-2026-2B6N5W",
+    "GOVTRACK-2026-2B6N5W",
     "bir-registration",
     "Haraya Digital Works",
     "Ana Cruz",
@@ -259,7 +268,7 @@ export const seedRequests: RequestRecord[] = [
     "Registration is complete. Please retain your receipt.",
   ],
   [
-    "EASE-2026-9C3X7L",
+    "GOVTRACK-2026-9C3X7L",
     "business-permit",
     "Common Ground Cafe",
     "Luis Garcia",
@@ -268,7 +277,7 @@ export const seedRequests: RequestRecord[] = [
     "Application received. Our team will review it shortly.",
   ],
   [
-    "EASE-2026-5J1D8A",
+    "GOVTRACK-2026-5J1D8A",
     "bir-registration",
     "Mabuhay Home Goods",
     "Carla Lim",
@@ -277,7 +286,7 @@ export const seedRequests: RequestRecord[] = [
     "Documents are being checked for completeness.",
   ],
   [
-    "EASE-2026-6F2H9S",
+    "GOVTRACK-2026-6F2H9S",
     "business-permit",
     "Brightline Consulting",
     "Jose Mendoza",
@@ -286,7 +295,7 @@ export const seedRequests: RequestRecord[] = [
     "Your business permit request has been completed.",
   ],
   [
-    "EASE-2026-3G7V4E",
+    "GOVTRACK-2026-3G7V4E",
     "bir-registration",
     "Isla Creative Co.",
     "Sofia Tan",

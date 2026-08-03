@@ -12,7 +12,7 @@ import { Layout } from "../components";
 import { activeProcesses } from "../data";
 import { createTrackingQr, downloadReceipt } from "../receiptPdf";
 import { formatDate, getRequests, updateRequest } from "../store";
-import easephLogo from "../assets/easeph-logo-transparent.png";
+import govTrackLogo from "../assets/govtrack-logo-transparent.png";
 
 export default function AgencyReceipt() {
   const { serial } = useParams();
@@ -71,7 +71,7 @@ export default function AgencyReceipt() {
             <article className="receipt-sheet">
               <header className="receipt-sheet-head">
                 <div>
-                  <img src={easephLogo} alt="EasePH" />
+                  <img src={govTrackLogo} alt="GovTrack" />
                   <small>Government processes, made easy.</small>
                 </div>
                 <div>

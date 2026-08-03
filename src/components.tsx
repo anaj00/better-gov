@@ -3,13 +3,12 @@ import { type ReactNode, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { setAuthenticated } from "./store";
 import type { Status } from "./types";
-import easephLogo from "./assets/easeph-logo-transparent.png";
+import govTrackLogo from "./assets/govtrack-logo-transparent.png";
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   return (
     <Link to="/" className={`logo ${inverse ? "logo-inverse" : ""}`}>
-      <img src={easephLogo} alt="EasePH" />
-      <span className="tagline">Government Processes, Made Easy</span>
+      <img src={govTrackLogo} alt="GovTrack" />
     </Link>
   );
 }
@@ -46,9 +45,7 @@ export function Header({ agency = false }: { agency?: boolean }) {
                 </button>
               </>
             )
-            : (
-              <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
-            )}
+            : <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>}
         </nav>
         <button
           className="menu-button"
@@ -82,11 +79,11 @@ export function Footer() {
         <div>
           <strong>For agencies</strong>
           <Link to="/agency/login">Agency portal</Link>
-          <span>support@easeph.org</span>
+          <span>support@govtrack.gov.ph</span>
         </div>
       </div>
       <div className="container footer-bottom">
-        <span>EasePH · Government processes, made easy</span>
+        <span>GovTrack · Government processes, made easy</span>
         <span>Clearer public services for everyone</span>
       </div>
     </footer>

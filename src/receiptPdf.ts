@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
-import easephLogo from "./assets/easeph-logo-transparent.png";
+import govTrackLogo from "./assets/govtrack-logo-transparent.png";
 import { activeProcesses } from "./data";
 import { formatDate } from "./store";
 import type { RequestRecord } from "./types";
@@ -50,7 +50,7 @@ export const createTrackingQr = (request: RequestRecord) =>
 
 export async function downloadReceipt(request: RequestRecord) {
   const [logo, qrCode] = await Promise.all([
-    whiteImageDataUrl(easephLogo),
+    whiteImageDataUrl(govTrackLogo),
     createTrackingQr(request),
   ]);
   const pdf = new jsPDF();

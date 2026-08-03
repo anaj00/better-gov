@@ -12,14 +12,14 @@ import { isAuthenticated, setAuthenticated } from "../store";
 
 export default function AgencyLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("agency@easeph.org");
-  const [password, setPassword] = useState("easeph2026");
+  const [email, setEmail] = useState("agency@govtrack.gov.ph");
+  const [password, setPassword] = useState("govtrack2026");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   if (isAuthenticated()) return <Navigate to="/agency/dashboard" replace />;
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (email === "agency@easeph.org" && password === "easeph2026") {
+    if (email === "agency@govtrack.gov.ph" && password === "govtrack2026") {
       setAuthenticated(true);
       navigate("/agency/dashboard");
     } else {setError(
@@ -55,7 +55,7 @@ export default function AgencyLogin() {
               <ShieldCheck />
             </span>
             <h2>Agency sign in</h2>
-            <p>Access the EasePH agency workspace.</p>
+            <p>Access the GovTrack agency workspace.</p>
             <label className="field">
               <span>Email address</span>
               <input

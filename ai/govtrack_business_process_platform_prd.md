@@ -1,7 +1,7 @@
 # Codex Build Brief
-## EasePH Government Process Demo Platform
+## GovTrack Government Process Platform
 
-Build a polished **frontend-only prototype** for EasePH. This is only for demonstration purposes.
+Build a polished **frontend-only prototype** for GovTrack.
 
 Do not add a backend, database, API, real authentication, real email sending, or real government integrations.
 
@@ -57,7 +57,7 @@ The public user may act as:
 Use one fixed demo account only.
 
 ```text
-Email: demo@easeph.org
+Email: agency@govtrack.gov.ph
 Password: demo123
 ```
 
@@ -84,7 +84,7 @@ Create only these pages:
 
 Include:
 
-- EasePH branding
+- GovTrack branding
 - Short explanation of the platform
 - Primary button: `Start a Request`
 - Secondary button: `Check Status`
@@ -164,7 +164,7 @@ Show a summary of the entered information before submission.
 Example:
 
 ```text
-EASE-2026-7K9M2Q
+GOVTRACK-2026-7K9M2Q
 ```
 
 ---
@@ -200,7 +200,7 @@ Generate the receipt on the client side using a library such as `jsPDF`.
 
 Include:
 
-- EasePH branding
+- GovTrack branding
 - Receipt title
 - Serial code
 - Process name
