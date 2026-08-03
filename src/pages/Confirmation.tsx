@@ -1,13 +1,222 @@
-import { Check, CheckCircle2, Download, Mail, Search } from 'lucide-react'
-import jsPDF from 'jspdf'
-import { Link, Navigate, useParams } from 'react-router-dom'
-import { Layout, StatusBadge } from '../components'
-import { activeProcesses } from '../data'
-import { formatDate, getRequests } from '../store'
+import { Check, CheckCircle2, Download, Mail, Search } from "lucide-react";
+import jsPDF from "jspdf";
+import QRCode from "qrcode";
+import { type FormEvent, useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
+import { Layout, StatusBadge } from "../components";
+import { activeProcesses } from "../data";
+import { formatDate, getRequests, updateRequest } from "../store";
+import easephLogo from "../assets/easeph-logo.png";
+
+const imageDataUrl = async (url: string) => {
+  const blob = await fetch(url).then((response) => response.blob());
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 export default function Confirmation() {
-  const { serial } = useParams(); const request = getRequests().find((item) => item.serialCode === serial)
-  if (!request) return <Navigate to="/request" />
-  const download = () => { const pdf = new jsPDF(); pdf.setFillColor(11, 59, 54); pdf.rect(0, 0, 210, 38, 'F'); pdf.setTextColor(255, 255, 255); pdf.setFontSize(24); pdf.text('EasePH', 18, 23); pdf.setTextColor(25, 35, 34); pdf.setFontSize(18); pdf.text('Government Service Request Receipt', 18, 55); pdf.setFontSize(10); pdf.setTextColor(90, 100, 98); pdf.text('This receipt is for demonstration purposes only.', 18, 63); const entries = [['Serial code', request.serialCode], ['Process', request.processName], ['Business', request.businessName], ['Applicant', request.applicantName], ['Submitted', formatDate(request.dateSubmitted)], ['Assigned agency', request.agency], ['Current status', request.status], ['Estimated time', activeProcesses[request.processId].estimate]]; let y = 82; entries.forEach(([label, value]) => { pdf.setFont('helvetica', 'bold'); pdf.setTextColor(80, 90, 88); pdf.text(label.toUpperCase(), 18, y); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(20, 32, 30); pdf.text(value, 18, y + 7, { maxWidth: 175 }); y += value.length > 70 ? 27 : 20 }); pdf.setDrawColor(210, 220, 217); pdf.line(18, y, 192, y); pdf.setTextColor(60, 74, 71); pdf.text(`Check your request anytime at EasePH using ${request.serialCode}.`, 18, y + 12); pdf.save(`${request.serialCode}-receipt.pdf`) }
-  return <Layout><main className="confirmation-page"><div className="container confirmation-wrap"><div className="success-icon"><Check /></div><span className="eyebrow">Request submitted</span><h1>Your request is on its way.</h1><p>Keep your serial code safe. You will use it to track progress.</p><div className="serial-card"><span>YOUR SERIAL CODE</span><strong>{request.serialCode}</strong><small>Submitted {formatDate(request.dateSubmitted)}</small></div><div className="confirmation-card"><div className="confirmation-title"><div><h2>{request.processName}</h2><p>{request.businessName}</p></div><StatusBadge status={request.status} /></div><dl><div><dt>Assigned agency</dt><dd>{request.agency}</dd></div><div><dt>Estimated processing</dt><dd>{activeProcesses[request.processId].estimate}</dd></div><div><dt>Applicant</dt><dd>{request.applicantName}</dd></div><div><dt>Date submitted</dt><dd>{formatDate(request.dateSubmitted)}</dd></div></dl><div className="email-notice"><Mail /><span><b>Receipt email simulated</b><small>A copy of your receipt has been sent to {request.email}.</small></span></div></div><div className="confirmation-actions"><button className="button button-primary" onClick={download}><Download /> Download receipt</button><Link className="button button-subtle" to={`/status?serial=${request.serialCode}`}><Search /> Check status</Link></div><p className="next-note"><CheckCircle2 /> You may close this page. Your request is saved in this browser.</p></div></main></Layout>
+  const { serial } = useParams();
+  const request = getRequests().find((item) => item.serialCode === serial);
+  const [notifications, setNotifications] = useState(Boolean(request?.email));
+  const [email, setEmail] = useState(request?.email || "");
+  const [saved, setSaved] = useState(Boolean(request?.email));
+  if (!request) return <Navigate to="/request" />;
+  const saveNotifications = (event: FormEvent) => {
+    event.preventDefault();
+    if (!email.trim()) return;
+    updateRequest(request.serialCode, { email: email.trim() });
+    setSaved(true);
+  };
+  const download = async () => {
+    const statusUrl = `${window.location.origin}/status?serial=${
+      encodeURIComponent(request.serialCode)
+    }`;
+    const [logo, qrCode] = await Promise.all([
+      imageDataUrl(easephLogo),
+      QRCode.toDataURL(statusUrl, {
+        width: 480,
+        margin: 1,
+        color: { dark: "#0B2E8A", light: "#FFFFFF" },
+      }),
+    ]);
+    const pdf = new jsPDF();
+    pdf.setFillColor(11, 46, 138);
+    pdf.rect(0, 0, 210, 43, "F");
+    pdf.setFillColor(214, 31, 58);
+    pdf.rect(0, 43, 210, 2.5, "F");
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(15, 8, 47, 27, 2, 2, "F");
+    pdf.addImage(logo, "PNG", 17, 10, 43, 22);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(15);
+    pdf.text("REQUEST RECEIPT", 194, 19, { align: "right" });
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text(request.serialCode, 194, 27, { align: "right" });
+
+    pdf.setTextColor(11, 46, 138);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    pdf.text("Government Service Request", 16, 61);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(88, 105, 148);
+    pdf.text(
+      "Keep this receipt and scan the QR code to track your request.",
+      16,
+      68,
+    );
+
+    pdf.setFillColor(246, 248, 252);
+    pdf.roundedRect(15, 77, 180, 40, 3, 3, "F");
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(11, 46, 138);
+    pdf.setFontSize(8);
+    pdf.text("SERIAL CODE", 23, 89);
+    pdf.setFontSize(20);
+    pdf.text(request.serialCode, 23, 101);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(88, 105, 148);
+    pdf.text(`Submitted ${formatDate(request.dateSubmitted)}`, 23, 109);
+
+    pdf.addImage(qrCode, "PNG", 151, 81, 31, 31);
+    const entries = [
+      ["Process", request.processName],
+      ["Business", request.businessName],
+      ["Applicant", request.applicantName],
+      ["Assigned agency", request.agency],
+      ["Current status", request.status],
+      ["Estimated time", activeProcesses[request.processId].estimate],
+    ];
+    let y = 133;
+    entries.forEach(([label, value]) => {
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8);
+      pdf.setTextColor(88, 105, 148);
+      pdf.text(label.toUpperCase(), 17, y);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(11);
+      pdf.setTextColor(15, 31, 85);
+      pdf.text(value, 17, y + 7, { maxWidth: 176 });
+      y += value.length > 70 ? 24 : 19;
+    });
+
+    pdf.setDrawColor(223, 229, 241);
+    pdf.line(16, 272, 194, 272);
+    pdf.setFontSize(8);
+    pdf.setTextColor(97, 112, 154);
+    pdf.text("Government processes, made easy.", 16, 280);
+    pdf.setTextColor(214, 31, 58);
+    pdf.text("Scan the QR code above to view the latest status.", 194, 280, {
+      align: "right",
+    });
+    pdf.save(`${request.serialCode}-receipt.pdf`);
+  };
+  return (
+    <Layout>
+      <main className="confirmation-page">
+        <div className="container confirmation-wrap">
+          <div className="success-icon">
+            <Check />
+          </div>
+          <span className="eyebrow">Request submitted</span>
+          <h1>Your request is on its way.</h1>
+          <p>Keep your serial code safe. You will use it to track progress.</p>
+          <div className="serial-card">
+            <span>YOUR SERIAL CODE</span>
+            <strong>{request.serialCode}</strong>
+            <small>Submitted {formatDate(request.dateSubmitted)}</small>
+          </div>
+          <div className="confirmation-card">
+            <div className="confirmation-title">
+              <div>
+                <h2>{request.processName}</h2>
+                <p>{request.businessName}</p>
+              </div>
+              <StatusBadge status={request.status} />
+            </div>
+            <dl>
+              <div>
+                <dt>Assigned agency</dt>
+                <dd>{request.agency}</dd>
+              </div>
+              <div>
+                <dt>Estimated processing</dt>
+                <dd>{activeProcesses[request.processId].estimate}</dd>
+              </div>
+              <div>
+                <dt>Applicant</dt>
+                <dd>{request.applicantName}</dd>
+              </div>
+              <div>
+                <dt>Date submitted</dt>
+                <dd>{formatDate(request.dateSubmitted)}</dd>
+              </div>
+            </dl>
+            <div className="notification-setup">
+              <label className="notification-toggle">
+                <input
+                  type="checkbox"
+                  checked={notifications}
+                  onChange={(event) => {
+                    setNotifications(event.target.checked);
+                    setSaved(false);
+                  }}
+                />
+                <Mail />
+                <span>
+                  <b>Turn on email notifications</b>
+                  <small>
+                    Receive updates when your request status changes.
+                  </small>
+                </span>
+              </label>
+              {notifications && (
+                <form
+                  className="notification-form"
+                  onSubmit={saveNotifications}
+                >
+                  <input
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      setSaved(false);
+                    }}
+                    placeholder="Enter your email address"
+                    aria-label="Email address for request notifications"
+                  />
+                  <button className="button button-primary" type="submit">
+                    {saved ? "Notifications on" : "Save email"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+          <div className="confirmation-actions">
+            <button className="button button-primary" onClick={download}>
+              <Download /> Download receipt
+            </button>
+            <Link
+              className="button button-subtle"
+              to={`/status?serial=${request.serialCode}`}
+            >
+              <Search /> Check status
+            </Link>
+          </div>
+          <p className="next-note">
+            <CheckCircle2 />{" "}
+            You may close this page. Your request is saved in this browser.
+          </p>
+        </div>
+      </main>
+    </Layout>
+  );
 }

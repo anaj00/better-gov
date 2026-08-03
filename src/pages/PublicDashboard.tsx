@@ -1,6 +1,5 @@
 import {
   AlertTriangle,
-  BarChart3,
   CheckCircle2,
   Clock3,
   FileStack,
@@ -71,12 +70,8 @@ export default function PublicDashboard() {
         <PageIntro
           eyebrow="Public service data"
           title="How government services are performing"
-          text="Explore fictional demonstration data across 50 business-facing processes and four geographic levels."
-        >
-          <div className="demo-pill">
-            <BarChart3 /> Demonstration data · Not official statistics
-          </div>
-        </PageIntro>
+          text="Explore service data across 50 business-facing processes and four geographic levels."
+        />
         <section className="dashboard-content">
           <div className="container">
             <div className="geo-nav">
@@ -193,7 +188,7 @@ export default function PublicDashboard() {
                       type="monotone"
                       dataKey="new"
                       name="New"
-                  stroke="#D61F3A"
+                      stroke="#D61F3A"
                       strokeWidth={3}
                       dot={false}
                     />
@@ -201,7 +196,7 @@ export default function PublicDashboard() {
                       type="monotone"
                       dataKey="completed"
                       name="Completed"
-                  stroke="#1749C6"
+                      stroke="#1749C6"
                       strokeWidth={3}
                       dot={false}
                     />
@@ -260,17 +255,13 @@ export default function PublicDashboard() {
                     <Tooltip formatter={(v) => number.format(Number(v))} />
                     <Bar
                       dataKey="Requests"
-                  fill="#1749C6"
+                      fill="#1749C6"
                       radius={[0, 5, 5, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartCard>
             </div>
-            <p className="dashboard-footnote">
-              All figures are generated for demonstration and presentation
-              purposes. They do not represent real government performance.
-            </p>
           </div>
         </section>
       </main>
