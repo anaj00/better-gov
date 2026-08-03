@@ -1,7 +1,7 @@
-import { AlertCircle, Check, Clock3, Search } from "lucide-react";
+import { AlertCircle, Check, ChevronDown, Search } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Layout, PageIntro, StatusBadge } from "../components";
+import { Layout, PageIntro } from "../components";
 import { formatDate, getRequests } from "../store";
 import type { RequestRecord } from "../types";
 
@@ -70,34 +70,6 @@ export default function StatusLookup() {
                     <h2>{result.processName}</h2>
                     <p>{result.serialCode}</p>
                   </div>
-                  <StatusBadge status={result.status} />
-                </div>
-                <div className="public-details">
-                  <div>
-                    <span>Responsible agency</span>
-                    <b>{result.agency}</b>
-                  </div>
-                  <div>
-                    <span>Date submitted</span>
-                    <b>{formatDate(result.dateSubmitted)}</b>
-                  </div>
-                  <div>
-                    <span>Last updated</span>
-                    <b>{formatDate(result.lastUpdated)}</b>
-                  </div>
-                  {result.approvalDate && (
-                    <div>
-                      <span>Approval date</span>
-                      <b>{formatDate(result.approvalDate)}</b>
-                    </div>
-                  )}
-                </div>
-                <div className="public-note">
-                  <Clock3 />
-                  <div>
-                    <span>Latest agency note</span>
-                    <p>{result.requesterNote}</p>
-                  </div>
                 </div>
                 <div className="status-timeline">
                   <div className="timeline-heading">
@@ -114,7 +86,7 @@ export default function StatusLookup() {
                         <Check />
                       </i>
                       <span>
-                        <b>New</b>
+                        <b>Submitted</b>
                         <small>
                           Submitted {formatDate(result.dateSubmitted, "short")}
                         </small>
@@ -142,6 +114,32 @@ export default function StatusLookup() {
                     </div>
                   </div>
                 </div>
+                <details className="request-details-collapse">
+                  <summary>
+                    Request details
+                    <ChevronDown />
+                  </summary>
+                  <div className="public-details">
+                    <div>
+                      <span>Responsible agency</span>
+                      <b>{result.agency}</b>
+                    </div>
+                    <div>
+                      <span>Date submitted</span>
+                      <b>{formatDate(result.dateSubmitted)}</b>
+                    </div>
+                    <div>
+                      <span>Last updated</span>
+                      <b>{formatDate(result.lastUpdated)}</b>
+                    </div>
+                    {result.approvalDate && (
+                      <div>
+                        <span>Approval date</span>
+                        <b>{formatDate(result.approvalDate)}</b>
+                      </div>
+                    )}
+                  </div>
+                </details>
               </div>
             )}
           </div>

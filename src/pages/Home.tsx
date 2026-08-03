@@ -4,14 +4,13 @@ import {
   ArrowUp,
   BarChart3,
   Building2,
-  Check,
   CheckCircle2,
   Clock3,
   Target,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Layout } from "../components";
-import civicHero from "../assets/easeph-civic-hero.png";
 
 const stats = [
   {
@@ -52,6 +51,43 @@ const stats = [
   },
 ];
 
+function AnimatedValue(
+  { value, down = false }: { value: string; down?: boolean },
+) {
+  const [display, setDisplay] = useState("0");
+  useEffect(() => {
+    const match = value.match(/^([\d,.]+)(.*)$/);
+    if (
+      !match || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      const reducedFrame = requestAnimationFrame(() => setDisplay(value));
+      return () => cancelAnimationFrame(reducedFrame);
+    }
+    const target = Number(match[1].replaceAll(",", ""));
+    const decimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
+    const suffix = match[2];
+    const initial = target * (down ? 1.12 : .86);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / 1100, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(
+        `${
+          (initial + (target - initial) * eased).toLocaleString("en-US", {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        }${suffix}`,
+      );
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, down]);
+  return <>{display}</>;
+}
+
 export default function Home() {
   return (
     <Layout>
@@ -71,7 +107,7 @@ export default function Home() {
                   className="brand-button brand-button-primary"
                   to="/request"
                 >
-                  Request a Process <ArrowRight />
+                  Request a Service <ArrowRight />
                 </Link>
                 <Link
                   className="brand-button brand-button-secondary"
@@ -81,42 +117,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="civic-visual">
-              <div className="civic-glow" />
-              <img
-                src={civicHero}
-                alt="A Philippine government building with the national flag and a city skyline"
-              />
-              <div className="status-preview">
-                <div className="status-preview-head">
-                  <span>
-                    <Check />
-                  </span>
-                  <div>
-                    <strong>Request Submitted</strong>
-                    <small>Your request is now being processed.</small>
-                  </div>
-                </div>
-                <div className="status-progress">
-                  <span className="complete">
-                    <Check />
-                  </span>
-                  <i />
-                  <span>
-                    <Check />
-                  </span>
-                  <i />
-                  <span>
-                    <Check />
-                  </span>
-                </div>
-                <div className="status-labels">
-                  <b>Submitted</b>
-                  <b>In Review</b>
-                  <b>Completed</b>
-                </div>
-              </div>
-            </div>
+            <div className="civic-visual" aria-hidden="true" />
           </div>
         </section>
         <section
@@ -133,7 +134,9 @@ export default function Home() {
                     <Icon />
                   </span>
                   <div>
-                    <strong>{value}</strong>
+                    <strong>
+                      <AnimatedValue value={value} down={down} />
+                    </strong>
                     <p>{label}</p>
                   </div>
                 </div>

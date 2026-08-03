@@ -132,12 +132,8 @@ export default function RequestForm() {
             <ArrowLeft /> {step > 0 ? "Previous step" : "Back to home"}
           </Link>
           <div className="form-heading">
-            <h1>{process ? process.name : "Choose a process"}</h1>
-            <p>
-              {process
-                ? `Submit your request to ${process.agency}.`
-                : "Select the government service you would like to request."}
-            </p>
+            <h1>{process ? process.name : "Request a service"}</h1>
+            {process && <p>Submit your request to {process.agency}.</p>}
           </div>
           {step === 0
             ? (
@@ -151,14 +147,6 @@ export default function RequestForm() {
                     aria-label="Search government services"
                   />
                 </label>
-                <div className="process-picker-summary">
-                  <span>
-                    {availableChoices.length + dummyChoices.length} services
-                  </span>
-                  <small>
-                    Government services available through EasePH.
-                  </small>
-                </div>
                 <div className="choice-grid">
                   {availableChoices.map(([id, item]) => (
                     <button
@@ -170,7 +158,6 @@ export default function RequestForm() {
                         navigate(`/request/${id}`, { replace: true });
                       }}
                     >
-                      <span className="big-process-icon">{item.icon}</span>
                       <span>
                         <span className="choice-title">
                           <b>{item.name}</b>
@@ -186,9 +173,6 @@ export default function RequestForm() {
                       key={item.id}
                       aria-disabled="true"
                     >
-                      <span className="big-process-icon">
-                        {item.governmentLevel === "national" ? "NG" : "LGU"}
-                      </span>
                       <span>
                         <span className="choice-title">
                           <b>{item.name}</b>

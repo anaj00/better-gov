@@ -57,7 +57,7 @@ export function Header({ agency = false }: { agency?: boolean }) {
                 <NavLink to="/dashboard">Stats</NavLink>
                 <NavLink to="/status">Track</NavLink>
                 <Link to="/request" className="header-cta">
-                  Request a Process <ArrowRight />
+                  Request a service <ArrowRight />
                 </Link>
               </>
             )}

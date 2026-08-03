@@ -1,9 +1,9 @@
-import { Check, CheckCircle2, Download, Mail, Search } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, Mail, Search } from "lucide-react";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { type FormEvent, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { Layout, StatusBadge } from "../components";
+import { Layout } from "../components";
 import { activeProcesses } from "../data";
 import { formatDate, getRequests, updateRequest } from "../store";
 import easephLogo from "../assets/easeph-logo-transparent.png";
@@ -45,6 +45,7 @@ export default function Confirmation() {
   const [notifications, setNotifications] = useState(Boolean(request?.email));
   const [email, setEmail] = useState(request?.email || "");
   const [saved, setSaved] = useState(Boolean(request?.email));
+  const [copied, setCopied] = useState(false);
   if (!request) return <Navigate to="/request" />;
   const saveNotifications = (event: FormEvent) => {
     event.preventDefault();
@@ -148,7 +149,21 @@ export default function Confirmation() {
           <p>Keep your serial code safe. You will use it to track progress.</p>
           <div className="serial-card">
             <span>YOUR SERIAL CODE</span>
-            <strong>{request.serialCode}</strong>
+            <div className="serial-code-row">
+              <strong>{request.serialCode}</strong>
+              <button
+                type="button"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(request.serialCode);
+                  setCopied(true);
+                  window.setTimeout(() => setCopied(false), 1600);
+                }}
+                aria-label={copied ? "Serial code copied" : "Copy serial code"}
+                title={copied ? "Copied" : "Copy serial code"}
+              >
+                {copied ? <Check /> : <Copy />}
+              </button>
+            </div>
             <small>Submitted {formatDate(request.dateSubmitted)}</small>
           </div>
           <div className="confirmation-card">
@@ -157,7 +172,6 @@ export default function Confirmation() {
                 <h2>{request.processName}</h2>
                 <p>{request.businessName}</p>
               </div>
-              <StatusBadge status={request.status} />
             </div>
             <dl>
               <div>
@@ -167,10 +181,6 @@ export default function Confirmation() {
               <div>
                 <dt>Estimated processing</dt>
                 <dd>{activeProcesses[request.processId].estimate}</dd>
-              </div>
-              <div>
-                <dt>Applicant</dt>
-                <dd>{request.applicantName}</dd>
               </div>
               <div>
                 <dt>Date submitted</dt>

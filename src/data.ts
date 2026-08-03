@@ -10,19 +10,17 @@ import type {
 
 export const activeProcesses: Record<
   ProcessId,
-  { name: string; agency: string; estimate: string; icon: string }
+  { name: string; agency: string; estimate: string }
 > = {
   "bir-registration": {
     name: "BIR Registration",
     agency: "Bureau of Internal Revenue",
     estimate: "5-10 business days",
-    icon: "BIR",
   },
   "business-permit": {
     name: "New Business Permit",
     agency: "Quezon City Business Permits and Licensing Department",
     estimate: "3-7 business days",
-    icon: "QC",
   },
 };
 
