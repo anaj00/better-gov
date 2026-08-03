@@ -58,7 +58,7 @@ export async function downloadReceipt(request: RequestRecord) {
   pdf.rect(0, 0, 210, 43, "F");
   pdf.setFillColor(214, 31, 58);
   pdf.rect(0, 43, 210, 2.5, "F");
-  pdf.addImage(logo, "PNG", 16, 9, 45, 23);
+  pdf.addImage(logo, "PNG", 16, 14.7, 58, 13.6);
   pdf.setTextColor(255, 255, 255);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(15);
