@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, Menu, RotateCcw, ShieldCheck, X } from 'lucide-react'
+import { ArrowRight, Menu, RotateCcw, ShieldCheck, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { isAuthenticated, resetRequests, setAuthenticated } from './store'
@@ -9,10 +9,10 @@ export function Logo({ inverse = false }: { inverse?: boolean }) {
   return <Link to="/" className={`logo ${inverse ? 'logo-inverse' : ''}`}><img src={easephLogo} alt="EasePH" /><span className="tagline">Government Processes, Made Easy</span></Link>
 }
 
-export function Header({ home = false }: { home?: boolean }) {
+export function Header() {
   const [open, setOpen] = useState(false)
-  return <header className={`site-header ${home ? 'home-header' : ''}`}><div className="container header-inner"><Logo /><nav className={open ? 'nav-open' : ''}>
-    {home ? <><NavLink to="/" end>Home</NavLink><NavLink to="/request">Processes</NavLink><NavLink to="/dashboard">National Stats</NavLink><Link to="/request" className="header-cta">Request a Process <ArrowRight /></Link></> : <><NavLink to="/request">Start a request</NavLink><NavLink to="/status">Check status</NavLink><NavLink to="/dashboard">Public dashboard</NavLink><NavLink to="/agency" className="nav-agency"><Building2 size={16} /> Agency portal</NavLink></>}
+  return <header className="site-header home-header"><div className="container header-inner"><Logo /><nav className={open ? 'nav-open' : ''}>
+    <NavLink to="/" end>Home</NavLink><NavLink to="/dashboard">Stats</NavLink><NavLink to="/status">Track</NavLink><Link to="/request" className="header-cta">Request a Process <ArrowRight /></Link>
   </nav><button className="menu-button" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button></div></header>
 }
 
@@ -21,7 +21,7 @@ export function Footer() {
 }
 
 export function Layout({ children, agency = false, home = false }: { children: ReactNode; agency?: boolean; home?: boolean }) {
-  return <><Header home={home} />{agency && <AgencyBar />}{children}{!home && <Footer />}</>
+  return <><Header />{agency && <AgencyBar />}{children}{!home && <Footer />}</>
 }
 
 function AgencyBar() {
