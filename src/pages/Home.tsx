@@ -55,6 +55,8 @@ function AnimatedValue(
   { value, down = false }: { value: string; down?: boolean },
 ) {
   const [display, setDisplay] = useState("0");
+  const [changing, setChanging] = useState(false);
+  const [previousDigit, setPreviousDigit] = useState("0");
   useEffect(() => {
     const match = value.match(/^([\d,.]+)(.*)$/);
     if (
@@ -69,23 +71,75 @@ function AnimatedValue(
     const initial = target * (down ? 1.12 : .86);
     const start = performance.now();
     let frame = 0;
+    let interval = 0;
+    let highlightTimer = 0;
+    const format = (number: number) =>
+      `${
+        number.toLocaleString("en-US", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })
+      }${suffix}`;
     const tick = (now: number) => {
       const progress = Math.min((now - start) / 1100, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(
-        `${
-          (initial + (target - initial) * eased).toLocaleString("en-US", {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-          })
-        }${suffix}`,
-      );
-      if (progress < 1) frame = requestAnimationFrame(tick);
+      setDisplay(format(initial + (target - initial) * eased));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        let current = target;
+        let currentText = format(target);
+        const step = target >= 1000
+          ? Math.max(1, Math.round(target * .0002))
+          : .1;
+        interval = window.setInterval(() => {
+          const oldDigit = [...currentText].reverse().find((character) =>
+            /\d/.test(character)
+          ) || "0";
+          current += down ? -step : step;
+          if (suffix.includes("%")) {
+            current = Math.min(current, 99.9);
+          }
+          if (down) {
+            current = Math.max(current, .1);
+          }
+          currentText = format(current);
+          setPreviousDigit(oldDigit);
+          setDisplay(currentText);
+          setChanging(true);
+          clearTimeout(highlightTimer);
+          highlightTimer = window.setTimeout(() =>
+            setChanging(false), 650);
+        }, 2500);
+      }
     };
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearInterval(interval);
+      clearTimeout(highlightTimer);
+    };
   }, [value, down]);
-  return <>{display}</>;
+  let finalDigitIndex = -1;
+  [...display].forEach((character, index) => {
+    if (/\d/.test(character)) finalDigitIndex = index;
+  });
+  return (
+    <span className="stat-number" aria-live="polite">
+      {[...display].map((character, index) =>
+        changing && index === finalDigitIndex
+          ? (
+            <span className="odometer-window" key={`${display}-${index}`}>
+              <span className="odometer-track">
+                <span>{previousDigit}</span>
+                <span>{character}</span>
+              </span>
+            </span>
+          )
+          : <span key={`${index}-${character}`}>{character}</span>
+      )}
+    </span>
+  );
 }
 
 export default function Home() {

@@ -3717,6 +3717,36 @@ footer {
   font-size: 28px;
   color: #07185a;
 }
+.stat-number {
+  display: inline-flex;
+  align-items: baseline;
+}
+.odometer-window {
+  display: inline-block;
+  height: 1em;
+  line-height: 1em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.odometer-track {
+  display: flex;
+  flex-direction: column;
+  line-height: 1em;
+  animation: odometer-roll 0.55s cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+}
+.odometer-track > span {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+}
+@keyframes odometer-roll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1em);
+  }
+}
 .stat-main p {
   margin: 0;
   color: #40568e;
