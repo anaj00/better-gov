@@ -1,14 +1,45 @@
-import { ArrowRight, BarChart3, Building, CheckCircle2, Clock3, FileCheck2, Landmark, Search, ShieldCheck, Store } from 'lucide-react'
+import { ArrowDown, ArrowRight, BarChart3, Building2, Check, CheckCircle2, Clock3, Target } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ArrowLink, Layout, SectionHeading } from '../components'
+import { Layout } from '../components'
+import civicHero from '../assets/easeph-civic-hero.png'
 
-const soon = [{ name: 'Barangay Business Clearance', icon: Landmark }, { name: 'Fire Safety Certificate', icon: ShieldCheck }, { name: 'DTI Business Name', icon: Store }]
+const stats = [
+  { icon: Building2, value: '12,842', label: 'Total Requests', change: '12.6%', note: 'vs last 30 days', tone: 'blue', down: false },
+  { icon: CheckCircle2, value: '9,532', label: 'Completed', change: '15.3%', note: 'vs last 30 days', tone: 'blue', down: false },
+  { icon: Clock3, value: '6.4 days', label: 'Avg. Processing Time', change: '8.7%', note: 'vs last 30 days', tone: 'red', down: true },
+  { icon: Target, value: '92.1%', label: 'On-Time Rate', change: '4.2%', note: 'vs last 30 days', tone: 'red', down: false },
+]
 
 export default function Home() {
-  return <Layout><main>
-    <section className="hero"><div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><div className="container hero-grid"><div className="hero-copy"><span className="eyebrow light"><i /> One place for business services</span><h1>Government processes, <em>made easier.</em></h1><p>Submit business requests, follow their progress, and understand how government services are performing.</p><div className="hero-actions"><Link className="button button-bright" to="/request">Start a request <ArrowRight size={18} /></Link><Link className="button button-ghost" to="/status"><Search size={18} /> Check status</Link></div><div className="hero-trust"><span><CheckCircle2 /> No account needed</span><span><ShieldCheck /> Secure demo</span><span><Clock3 /> Track anytime</span></div></div><div className="hero-visual"><div className="request-preview"><div className="preview-top"><span className="mini-logo"><span /></span><span>Request progress</span><small>Live</small></div><div className="preview-body"><span className="preview-label">REFERENCE NUMBER</span><strong>EASE-2026-7K9M2Q</strong><div className="preview-process"><div className="process-icon">BIR</div><div><b>BIR Registration</b><span>Bureau of Internal Revenue</span></div></div><div className="timeline"><i className="done"><CheckCircle2 /></i><span className="line done" /><i className="active" /><span className="line" /><i /></div><div className="timeline-labels"><span>Submitted<small>Aug 01</small></span><span>In review<small>Current</small></span><span>Completed<small>Pending</small></span></div></div></div><div className="float-card float-one"><FileCheck2 /><span><b>Request received</b><small>Just now</small></span></div><div className="float-card float-two"><BarChart3 /><span><b>87% on time</b><small>Quezon City</small></span></div></div></div></section>
-    <section className="processes section"><div className="container"><SectionHeading eyebrow="Available now" title="Start with the service you need" text="Two essential business processes are ready to use in this demonstration." action={<ArrowLink to="/dashboard">View service statistics</ArrowLink>} /><div className="process-grid"><Link to="/request/bir-registration" className="process-card featured"><div className="process-card-top"><span className="big-process-icon">BIR</span><span className="available">Available</span></div><h3>BIR Registration</h3><p>Register your business with the Bureau of Internal Revenue and receive your tracking code.</p><div className="process-meta"><span><Building size={16} /> National agency</span><span><Clock3 size={16} /> 5-10 days</span></div><span className="card-action">Start request <ArrowRight /></span></Link><Link to="/request/business-permit" className="process-card"><div className="process-card-top"><span className="big-process-icon qc">QC</span><span className="available">Available</span></div><h3>New Business Permit</h3><p>Apply for a new Quezon City business permit through one clear, guided request.</p><div className="process-meta"><span><Building size={16} /> Local agency</span><span><Clock3 size={16} /> 3-7 days</span></div><span className="card-action">Start request <ArrowRight /></span></Link></div><div className="coming-grid">{soon.map(({ name, icon: Icon }) => <div className="soon-card" key={name}><Icon /><span><b>{name}</b><small>Coming soon</small></span></div>)}</div></div></section>
-    <section className="how section"><div className="container"><SectionHeading eyebrow="Simple by design" title="From request to result" text="No queues, no guesswork. Follow one straightforward path." /><div className="steps"><div><span>01</span><FileCheck2 /><h3>Submit your request</h3><p>Complete a guided form with the information the agency needs.</p></div><div><span>02</span><Search /><h3>Track with your code</h3><p>Use your unique serial code to see the latest status anytime.</p></div><div><span>03</span><CheckCircle2 /><h3>Get your result</h3><p>See when the agency completes your request and approves it.</p></div></div></div></section>
-    <section className="dashboard-cta"><div className="container dashboard-cta-inner"><div><span className="eyebrow light">Open government data</span><h2>See how services are performing.</h2><p>Explore demonstration statistics across 50 common business-facing government processes, from national to barangay level.</p><Link className="button button-bright" to="/dashboard">Explore public dashboard <ArrowRight /></Link></div><div className="mini-stats"><div><span>Total requests</span><strong>486,291</strong><small><b>+8.2%</b> from last period</small></div><div className="donut"><span>87%<small>on time</small></span></div></div></div></section>
+  return <Layout home><main className="brand-home">
+    <section className="brand-hero">
+      <div className="container brand-hero-grid">
+        <div className="brand-hero-copy">
+          <h1>Government<br />processes,<br />made <em>easier.</em></h1>
+          <p>Request, track, and complete processes in<br className="desktop-break" /> just a few simple steps.</p>
+          <div className="brand-hero-actions">
+            <Link className="brand-button brand-button-primary" to="/request">Request a Process <ArrowRight /></Link>
+            <Link className="brand-button brand-button-secondary" to="/dashboard">View National Stats <BarChart3 /></Link>
+          </div>
+        </div>
+        <div className="civic-visual">
+          <div className="civic-glow" />
+          <img src={civicHero} alt="A Philippine government building with the national flag and a city skyline" />
+          <div className="status-preview">
+            <div className="status-preview-head"><span><Check /></span><div><strong>Request Submitted</strong><small>Your request is now being processed.</small></div></div>
+            <div className="status-progress"><span className="complete"><Check /></span><i /><span><Check /></span><i /><span><Check /></span></div>
+            <div className="status-labels"><b>Submitted</b><b>In Review</b><b>Completed</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section className="stats-wrap container" aria-label="National process statistics">
+      <div className="brand-stats">{stats.map(({ icon: Icon, value, label, change, note, tone, down }) =>
+        <article className={`brand-stat ${tone}`} key={label}>
+          <div className="stat-main"><span className="stat-icon"><Icon /></span><div><strong>{value}</strong><p>{label}</p></div></div>
+          <div className="stat-change">{down ? <ArrowDown /> : <span className="up-arrow">↑</span>}<b>{change}</b><small>{note}</small></div>
+        </article>)}
+      </div>
+    </section>
   </main></Layout>
 }

@@ -3,15 +3,16 @@ import { useState, type ReactNode } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { isAuthenticated, resetRequests, setAuthenticated } from './store'
 import type { Status } from './types'
+import easephLogo from './assets/easeph-logo.png'
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
-  return <Link to="/" className={`logo ${inverse ? 'logo-inverse' : ''}`}><span className="logo-mark"><span /></span><span>Ease<span>PH</span></span></Link>
+  return <Link to="/" className={`logo ${inverse ? 'logo-inverse' : ''}`}><img src={easephLogo} alt="EasePH" /><span className="tagline">Government Processes, Made Easy</span></Link>
 }
 
-export function Header() {
+export function Header({ home = false }: { home?: boolean }) {
   const [open, setOpen] = useState(false)
-  return <header className="site-header"><div className="container header-inner"><Logo /><nav className={open ? 'nav-open' : ''}>
-    <NavLink to="/request">Start a request</NavLink><NavLink to="/status">Check status</NavLink><NavLink to="/dashboard">Public dashboard</NavLink><NavLink to="/agency" className="nav-agency"><Building2 size={16} /> Agency portal</NavLink>
+  return <header className={`site-header ${home ? 'home-header' : ''}`}><div className="container header-inner"><Logo /><nav className={open ? 'nav-open' : ''}>
+    {home ? <><NavLink to="/" end>Home</NavLink><NavLink to="/request">Processes</NavLink><NavLink to="/dashboard">National Stats</NavLink><Link to="/request" className="header-cta">Request a Process <ArrowRight /></Link></> : <><NavLink to="/request">Start a request</NavLink><NavLink to="/status">Check status</NavLink><NavLink to="/dashboard">Public dashboard</NavLink><NavLink to="/agency" className="nav-agency"><Building2 size={16} /> Agency portal</NavLink></>}
   </nav><button className="menu-button" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button></div></header>
 }
 
@@ -19,8 +20,8 @@ export function Footer() {
   return <footer><div className="container footer-grid"><div><Logo inverse /><p>A demonstration platform making government business processes easier to request and track.</p></div><div><strong>Public services</strong><Link to="/request">Start a request</Link><Link to="/status">Check status</Link><Link to="/dashboard">Statistics</Link></div><div><strong>For agencies</strong><Link to="/agency">Agency portal</Link><span>demo@easeph.org</span></div></div><div className="container footer-bottom"><span>EasePH prototype · Demo data only</span><span>Not an official government service</span></div></footer>
 }
 
-export function Layout({ children, agency = false }: { children: ReactNode; agency?: boolean }) {
-  return <><Header />{agency && <AgencyBar />}{children}<Footer /></>
+export function Layout({ children, agency = false, home = false }: { children: ReactNode; agency?: boolean; home?: boolean }) {
+  return <><Header home={home} />{agency && <AgencyBar />}{children}{!home && <Footer />}</>
 }
 
 function AgencyBar() {
