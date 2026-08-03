@@ -371,7 +371,6 @@ export function statisticsFor(geography: Geography, processIds: string[]) {
     });
 }
 
-// Region names must match the `adm1_en` property in src/geodata/philippines-regions.topo.json
 export const regionNames = [
   "Region I (Ilocos Region)",
   "Region II (Cagayan Valley)",
