@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import easephLogo from "./assets/easeph-logo-transparent.png";
 import govTrackLogo from "./assets/govtrack-logo-transparent.png";
 import { activeProcesses } from "./data";
 import { formatDate } from "./store";
@@ -49,8 +50,9 @@ export const createTrackingQr = (request: RequestRecord) =>
   });
 
 export async function downloadReceipt(request: RequestRecord) {
-  const [logo, qrCode] = await Promise.all([
+  const [govTrack, easeph, qrCode] = await Promise.all([
     whiteImageDataUrl(govTrackLogo),
+    whiteImageDataUrl(easephLogo),
     createTrackingQr(request),
   ]);
   const pdf = new jsPDF();
@@ -58,8 +60,12 @@ export async function downloadReceipt(request: RequestRecord) {
   pdf.rect(0, 0, 210, 43, "F");
   pdf.setFillColor(214, 31, 58);
   pdf.rect(0, 43, 210, 2.5, "F");
-  pdf.addImage(logo, "PNG", 16, 14.7, 58, 13.6);
+  pdf.addImage(govTrack, "PNG", 16, 13, 48, 10.4);
   pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(5.5);
+  pdf.text("by", 67, 20);
+  pdf.addImage(easeph, "PNG", 68, 14.5, 31, 7.3);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(15);
   pdf.text("SERVICE RECEIPT", 194, 19, { align: "right" });

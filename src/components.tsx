@@ -3,12 +3,15 @@ import { type ReactNode, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { setAuthenticated } from "./store";
 import type { Status } from "./types";
+import easephLogo from "./assets/easeph-logo-transparent.png";
 import govTrackLogo from "./assets/govtrack-logo-transparent.png";
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   return (
     <Link to="/" className={`logo ${inverse ? "logo-inverse" : ""}`}>
-      <img src={govTrackLogo} alt="GovTrack" />
+      <img className="govtrack-logo" src={govTrackLogo} alt="GovTrack" />
+      <span className="logo-by">by</span>
+      <img className="easeph-logo" src={easephLogo} alt="EasePH" />
     </Link>
   );
 }
