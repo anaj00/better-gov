@@ -595,15 +595,11 @@ export function shortRegionName(region: string): string {
   return region.replace(/^Region /, "");
 }
 
-export function medianDaysFor(
+function scaleMedian(
+  median: number,
   location: DrillLocation,
-  processIds: string[],
   window: TimeWindow,
 ): number {
-  const rows = statisticsFor("Philippines", processIds);
-  const total = rows.reduce((sum, row) => sum + row.total, 0) || 1;
-  let median = rows.reduce((sum, row) => sum + row.avgDays * row.total, 0) /
-    total;
   if (location.region) {
     const index = regionNames.indexOf(location.region);
     median *= 0.9 + ((index * 7) % 19) / 100;
@@ -617,6 +613,35 @@ export function medianDaysFor(
     median *= 0.86 + (hash(key + "w") % 14) / 100;
   }
   return Math.round(median * 10) / 10;
+}
+
+export function medianDaysFor(
+  location: DrillLocation,
+  processIds: string[],
+  window: TimeWindow,
+): number {
+  const rows = statisticsFor("Philippines", processIds);
+  const total = rows.reduce((sum, row) => sum + row.total, 0) || 1;
+  const median = rows.reduce(
+    (sum, row) => sum + row.avgDays * row.total,
+    0,
+  ) / total;
+  return scaleMedian(median, location, window);
+}
+
+export function processMedianDays(
+  id: string,
+  location: DrillLocation,
+  window: TimeWindow,
+): number {
+  const projectIndex = processCatalog.findIndex((p) => p.id === id);
+  const base =
+    2 +
+    (projectIndex % 11) +
+    ((hash(id) % 7) / 10) +
+    (projectIndex % 4) * 0.5 +
+    (hash(id + "d") % 20) / 10;
+  return scaleMedian(base, location, window);
 }
 
 export function drillLevelLabel(location: DrillLocation): string {

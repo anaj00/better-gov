@@ -173,7 +173,7 @@ export default function Home() {
                 </Link>
                 <Link
                   className="brand-button brand-button-secondary"
-                  to="/#requests-by-region"
+                  to="#stats"
                 >
                   View National Stats <BarChart3 />
                 </Link>
@@ -183,6 +183,7 @@ export default function Home() {
           </div>
         </section>
         <section
+          id="stats"
           className="stats-wrap container"
           aria-label="National process statistics"
         >
