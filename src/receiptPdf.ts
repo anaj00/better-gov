@@ -37,7 +37,9 @@ const whiteImageDataUrl = async (url: string) => {
 };
 
 export const getStatusUrl = (request: RequestRecord) =>
-  `${window.location.origin}/status?serial=${encodeURIComponent(request.serialCode)}`;
+  `${window.location.origin}/status?serial=${
+    encodeURIComponent(request.serialCode)
+  }`;
 
 export const createTrackingQr = (request: RequestRecord) =>
   QRCode.toDataURL(getStatusUrl(request), {
@@ -72,7 +74,11 @@ export async function downloadReceipt(request: RequestRecord) {
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
   pdf.setTextColor(88, 105, 148);
-  pdf.text("Keep this receipt and scan the QR code to track this service.", 16, 68);
+  pdf.text(
+    "Keep this receipt and scan the QR code to track this service.",
+    16,
+    68,
+  );
 
   pdf.setFillColor(246, 248, 252);
   pdf.roundedRect(15, 77, 180, 54, 3, 3, "F");
@@ -107,12 +113,15 @@ export async function downloadReceipt(request: RequestRecord) {
     y += value.length > 70 ? 24 : 19;
   });
 
-  pdf.setDrawColor(223, 229, 241);
-  pdf.line(16, 272, 194, 272);
+  pdf.setFillColor(214, 31, 58);
+  pdf.rect(0, 267, 210, 2.5, "F");
+  pdf.setFillColor(11, 46, 138);
+  pdf.rect(0, 269.5, 210, 27.5, "F");
   pdf.setFontSize(8);
-  pdf.setTextColor(97, 112, 154);
-  pdf.text("Government processes, made easy.", 16, 280);
-  pdf.setTextColor(214, 31, 58);
-  pdf.text("Scan the QR code above to view the latest status.", 194, 280, { align: "right" });
+  pdf.setTextColor(255, 255, 255);
+  pdf.text("Government processes, made easy.", 16, 284);
+  pdf.text("Scan the QR code above to view the latest status.", 194, 284, {
+    align: "right",
+  });
   pdf.save(`${request.serialCode}-receipt.pdf`);
 }
